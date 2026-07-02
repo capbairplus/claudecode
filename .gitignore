@@ -1,0 +1,18 @@
+# 預設忽略所有東西
+/*
+
+# 只追蹤這些設定資產
+!/.gitignore
+!/CLAUDE.md
+!/settings.json
+!/skills/
+!/commands/
+!/agents/
+
+# projects:只保留 memory 子夾,不收對話記錄(.jsonl)等
+!/projects/
+/projects/*
+!/projects/*/
+/projects/*/*
+!/projects/*/memory/
+!/projects/*/memory/**

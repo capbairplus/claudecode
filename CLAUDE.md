@@ -1,0 +1,21 @@
+# 通用指令(全域,所有 session 載入)
+
+## 語言
+- 一律用**繁體中文**回應。
+
+## 工作區慣例
+- 所有專案集中在 `G:\claudecode\`(與 ComfyUI `G:\ComfyUI_windows_portable\` 同槽)。
+- **每個主題/專案一個資料夾**,命名 `topic_YYYY-MM-DD`(專案名在前、日期在後)、英文 ASCII、kebab-case,日期為專案起始日。
+- 資料夾內可再分子目錄,依專案彈性(如 `input / dataset / workflows / output`)。
+- 既有例外:`G:\claudecode\art`、`G:\claudecode\政治漫畫` 原地保留、不改名、不套規則。
+- 建新專案資料夾時一律建在 `G:\claudecode\topic_YYYY-MM-DD\`。
+- 注意:Claude Code 工作目錄是啟動時決定的,無法對話中途改。
+
+## 工作方式
+- **先查資料再回答**:不確定軟體 UI/功能細節時先搜尋驗證,別憑印象亂猜。
+- 動到現有檔案(搬移/刪除/覆寫)採「先複製 → 核對檔數與大小 → 再刪來源」的安全做法。
+
+## 記憶
+- 自動記憶的「家」固定在工作目錄 `G:\claudecode\` 對應的
+  `C:\Users\capbair\.claude\projects\G--claudecode\memory\`。
+- 專案專屬事實(甲冑 LoRA、政治漫畫等)放自動記憶;跨專案通用的規則寫在本檔。
