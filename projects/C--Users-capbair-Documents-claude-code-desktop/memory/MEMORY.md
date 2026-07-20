@@ -1,0 +1,12 @@
+- [Windows session isolation breaks interactive CLI](windows_session_isolation_interactive_cli.md) — DO THIS FIRST for Vigor SSH: skip straight to hidden schtasks method (ready-made helper at C:\Temp\vigor\run_hidden.vbs), don't re-diagnose.
+- [Vigor 2960 CLI writes don't regenerate iptables](vigor2960_cli_write_bug.md) — CLI-set IP object values never enforce; only Web UI edits (or Selenium automation of the Web UI) work. See guide chapter 9.
+- [Vigor 2960 admin tools suite](vigor2960_admin_tools_suite.md) — 5 PHP tools on 192.168.1.33: backup, log download, log analysis, firmware check, config restore (restore not yet live-tested).
+- [Obsidian MCP integration](obsidian_mcp_integration.md) — Claude Code ↔ Obsidian vault via Local REST API plugin's MCP endpoint, registered as "obsidian" in user config.
+- [PowerShell blocks npm .ps1 shims](powershell_npm_ps1_execution_policy.md) — use `<tool>.cmd` instead of bare `<tool>` when a global npm CLI fails with PSSecurityException here.
+- [Obsidian vault tagging convention](obsidian_vault_tagging_convention.md) — auto-tag by folder topic + date, auto-add [[backlinks]], state proposed tags before writing, don't wait to be asked.
+- [FFmpeg toolbox WPF app](project_ffmpeg_toolbox_app.md) — G:\claudecode\ffmpeg-app_2026-07-15\FfmpegToolbox\, .NET SDK PATH quirks, icon/publish cache gotcha, UX conventions (default output dir, auto-open folder, drag-drop).
+- [Always give folder link on deliverable](feedback_folder_link_on_deliverable.md) — open Explorer + markdown link every time a build/file is handed over, don't wait to be asked.
+- [Stop guessing, get a stack trace](feedback_stop_guessing_get_stack_trace.md) — after one failed fix attempt on a silent bug, next step is real diagnostics (full ex.ToString()), not another guess.
+- [Don't publish until confirmed done](feedback_dont_publish_until_confirmed_done.md) — wait for explicit "all changes done" before running self-contained publish/package steps; then proactively remind.
+- [yt-dlp toolbox app](project_ytdlp_toolbox_app.md) — G:\claudecode\ytdlp-app_2026-07-19\YtDlpToolbox\, bundled yt-dlp/ffmpeg, MVP scope, `--print` fallback op is `,` not `|`.
+- [G:\ drive Edit tool fsync failure](feedback_g_drive_edit_tool_fsync_failure.md) — Edit/Write tool fails silently on G:\claudecode\ files; use PowerShell File.WriteAllText instead.
