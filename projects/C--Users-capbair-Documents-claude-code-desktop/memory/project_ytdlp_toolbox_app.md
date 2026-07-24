@@ -5,6 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 910137ab-1d24-4232-a39d-42fa2ff5b932
+  modified: 2026-07-24T06:29:48.808Z
 ---
 
 Building a yt-dlp desktop GUI, sibling to [[project_ffmpeg_toolbox_app]], at
@@ -70,6 +71,23 @@ confirmed via direct CLI reproduction, neither is an app bug:**
    live-browser-decryption problem entirely. `AppSettings.CookieMode`
    ("none"/"browser"/"file") replaced the old `UseCookiesFromBrowser` bool;
    UI is now 3 radio buttons in the Cookie GroupBox.
+
+**Deployment decision (2026-07-24, superseded the earlier Inno Setup
+installer approach):** user wants a single portable self-contained .exe, no
+installer wizard. Final bundling: `ffmpeg.exe`/`ffprobe.exe` removed from
+`ExternalTools\` entirely — user explicitly assumes the target machine
+already has ffmpeg on PATH (`YtDlpLocator` already falls back to PATH
+lookup, no code change needed). `yt-dlp.exe` and `deno.exe` stay bundled
+(csproj `Content` item has no `ExcludeFromSingleFile`, so
+`dotnet publish -c Release -r win-x64 --self-contained true
+-p:PublishSingleFile=true -p:IncludeNativeLibrariesForSelfExtract=true`
+embeds them into one ~266MB `YtDlpToolbox.exe`). Verified end-to-end: copied
+just that one exe to an isolated folder, launched it, confirmed it self-
+extracts to `%TEMP%\.net\YtDlpToolbox\<hash>\bin\{yt-dlp,deno}.exe` and
+`YtDlpLocator`'s `AppContext.BaseDirectory`-relative lookup finds them
+correctly there. The Inno Setup installer script (`installer.iss`) and
+`installer-output\` folder are stale/unused now — the deliverable is just
+`publish\YtDlpToolbox.exe`.
 
 **Debugging gotcha:** the app's log box accumulates across multiple separate
 "開始下載佇列" clicks within one session (never cleared between runs) — when

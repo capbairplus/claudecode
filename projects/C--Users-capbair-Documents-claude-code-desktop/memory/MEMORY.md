@@ -10,3 +10,4 @@
 - [Don't publish until confirmed done](feedback_dont_publish_until_confirmed_done.md) — wait for explicit "all changes done" before running self-contained publish/package steps; then proactively remind.
 - [yt-dlp toolbox app](project_ytdlp_toolbox_app.md) — G:\claudecode\ytdlp-app_2026-07-19\YtDlpToolbox\, bundled yt-dlp/ffmpeg, MVP scope, `--print` fallback op is `,` not `|`.
 - [G:\ drive Edit tool fsync failure](feedback_g_drive_edit_tool_fsync_failure.md) — Edit/Write tool fails silently on G:\claudecode\ files; use PowerShell File.WriteAllText instead.
+- [Stop means stop until explicit resume](feedback_stop_means_stop_until_explicit_resume.md) — after "停下來", answering a clarifying question is NOT a go-ahead to execute; ask before resuming.

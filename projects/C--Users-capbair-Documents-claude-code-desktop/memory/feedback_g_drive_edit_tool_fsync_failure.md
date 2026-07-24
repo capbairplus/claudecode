@@ -5,6 +5,7 @@ metadata:
   node_type: memory
   type: feedback
   originSessionId: 910137ab-1d24-4232-a39d-42fa2ff5b932
+  modified: 2026-07-24T06:29:39.106Z
 ---
 
 The `Edit` (and likely `Write`) tool intermittently but repeatedly fails with
@@ -47,3 +48,19 @@ since this workaround has no built-in confirmation the way the Edit tool
 normally would. This affects every project under `G:\claudecode\`, not just
 the yt-dlp app — check for this failure mode first any time an Edit call on
 a `G:\` path errors, rather than re-diagnosing from scratch.
+
+**Related but separate symptom (2026-07-24): `dotnet publish` fails on a
+freshly-deleted `obj\`/`bin\`.** Running `Remove-Item obj, bin -Recurse
+-Force` then immediately `dotnet publish` on this drive threw
+`DirectoryNotFoundException` / `MSB3883` for intermediate files like
+`obj\Release\...\ref\<Assembly>.dll` or `...\refint\<Assembly>.dll` —
+different subfolder each time, not always reproducible, clearly a directory-
+creation race on this exFAT network mount. **Workaround**: don't `dotnet
+publish` straight after wiping `obj`/`bin`. Run a plain `dotnet build -c
+Release` first (this reliably (re)creates the full intermediate directory
+tree), *then* run `dotnet publish` on top of it (only delete the `publish`
+output folder itself, not `obj`/`bin`). This resolved it every time it was
+tried. The icon/resource-cache gotcha in the `dotnet-wpf-desktop-dev` skill
+(§4) still calls for wiping `obj`/`bin` before a Release publish when a
+`.csproj` resource setting changed — on this drive, follow that wipe with a
+`dotnet build` first, not a direct `dotnet publish`.
