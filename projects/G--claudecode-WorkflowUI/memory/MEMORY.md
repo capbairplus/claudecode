@@ -4,3 +4,4 @@
 - [.161 網路可達性](comfy-161-network-access.md) — 這個 sandbox 對 .161:8188 的直連可達性會變動(同一 session 內遇過先失敗後通),每次用前先實測,SSH 是穩定備援
 - [驗證後才下結論](verify-before-claiming-unreachable.md) — 一次連線失敗不代表「連不到」,下結論前要實際測
 - [角度/姿勢類效果要節點+文字雙管齊下](multiangle-node-plus-text-lesson.md) — 只餵數值給控制節點不夠,proven 腳本通常還把描述文字寫進 prompt;漏了會「看起來有跑但沒效果」不報錯
+- [影片類卡片要動的後端範圍 + ReActor 沒載入](video-card-pattern-and-reactor-gap.md) — 輸出是影片時「不用改後端」不成立,VHS_VideoCombine 輸出在 `gifs` key;.161 上 ReActorFaceSwap 目前 import 失敗,圖片/影片版換臉卡都受影響

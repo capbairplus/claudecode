@@ -1,0 +1,5 @@
+- [Brand decisions](brand_decisions.md) — confirmed logo (SOLIS Düsseldorf wordmark), tagline (Future Innovation), SOLUNA excluded
+- [Source data locations](source_data_locations.md) — raw dump vs. curated `source/` copy, what's excluded and why
+- [Content status](new_solis_website_content_status.md) — what's gathered vs. blocked (fabric specs locked behind login)
+- [Check before claiming not done](check_before_claiming_not_done.md) — check Obsidian AND all git branches before saying work hasn't started
+- [Infrastructure topology](solis_infrastructure_topology.md) — CRITICAL: real solistex.com host is 192.168.1.7 via SSH, NOT the local session machine

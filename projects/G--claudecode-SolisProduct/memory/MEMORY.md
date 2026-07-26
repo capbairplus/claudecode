@@ -1,0 +1,3 @@
+- [SOLIS 背包 LoRA pilot 現況](project_backpack_lora_pilot.md) — B19010核桃紫 資料集/訓練狀態，觸發詞 solisb19010bag
+- [.161 訓練機使用注意事項](reference_161_training_machine.md) — chavi 的機器，SYSTEM 排程啟動法、cp950 編碼雷
+- [B26 多花色 LoRA 現況](project_b26_multicolor_lora.md) — solisb26bag 觸發詞，人物身分完全歸零的做法，訓練中
