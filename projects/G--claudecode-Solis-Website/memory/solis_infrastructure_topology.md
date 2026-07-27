@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: ecbf5e18-997e-4be8-bc69-00de39bf5803
-  modified: 2026-07-26T12:57:51.807Z
+  modified: 2026-07-26T13:36:17.169Z
 ---
 
 **The machine this Claude Code session's Bash/PowerShell tools run on (hostname `CAPBAIR31`, IP `192.168.3.31`) is NOT the Solis WordPress host**, even though it confusingly has its own local `C:\wordpresstemp`, `C:\mysql`, `C:\php`, `C:\Apache` with the same-looking paths, the same MySQL user (`capbair`), and even the same-named `temp` database. That local copy's real relationship to production was never fully resolved — treat it as untrustworthy for "is X deployed" questions.
@@ -21,9 +21,11 @@ metadata:
 
 **Plan 2 (`solis-fabric-content-model`) also completed and verified live the same day** — the `wordpress/plugins/solis-fabric-model` plugin (fabric post type, 5 taxonomies, ACF field groups, product_code uniqueness, REST lockdown for MOQ/Lead Time) is deployed and active on `C:\solistex-new`, 23/23 PHPUnit tests passing. Deployment pattern used throughout: edit locally in the git repo (`G:\claudecode\Solis Website\wordpress\plugins\...`), then `scp`/`ssh` the same files to `C:\solistex-new\wp-content\plugins\...` on 192.168.1.7 and verify live via `wp eval-file`. No git checkout of this repo exists on the remote host — deployment is always a manual file copy, not a `git pull`.
 
-**Two host quirks discovered during Plan 2, worth knowing before relying on either:**
-1. Pretty `/wp-json/` REST URLs 404 site-wide on this host (both production and `solistex-new`) — use `/?rest_route=/wp/v2/...` instead. Matters for `solis-ai-robot` later (design spec assumes REST endpoints work normally).
-2. ACF Free 6.8.6 does not auto-populate the `acf` key in REST responses (always empty `[]`) — public field REST exposure will need explicit `register_rest_field()` calls when that's built (likely `solis-fabric-catalog`).
+**Two things found during Plan 2, worth knowing:**
+1. ~~Pretty `/wp-json/` REST URLs 404 site-wide~~ — **corrected 2026-07-26 (Plan 4 Task 4):** this was never a platform-wide quirk. `C:\solistex-new\.htaccess` simply never existed (`wp rewrite flush --hard` silently fails to write it in this environment), so *every* pretty URL 404'd, not just REST — Pages, custom post types, everything except the root. Fixed by writing the standard WordPress rewrite block directly to `.htaccess`; see `docs/runbooks/solis-foundation.md` "Known fixes applied after initial provisioning". Production was never touched/affected. If `solistex-new` (or any future site on this host) ever gets rebuilt, check for this again — don't assume `wp rewrite flush` alone is enough.
+2. ACF Free 6.8.6 does not auto-populate the `acf` key in REST responses (always empty `[]`) — public field REST exposure will need explicit `register_rest_field()` calls when that's built (likely `solis-fabric-catalog`). This one is still accurate/unresolved.
+
+**Plan 4 (`solis-design-system-theme`) in progress** — a from-scratch theme at `wordpress/themes/solis/`, design tokens approved via a published mockup (navy/off-white/slate + logo-derived orange accent, system sans + monospace for technical data). As of 2026-07-26: Tasks 1-4 done (scaffold+tokens, header/footer/nav, Home page with a real uploaded product photo, About page with real team/company copy), all verified live. Tasks 5 (Sustainability) and 6 (responsive/a11y QA — blocked on the user adding a `solistex-new.local` hosts entry somewhere with browser access, deferred for now) remain.
 
 **Plan 3 (`solis-csv-importer`) also completed and verified live 2026-07-26** — a second isolated plugin, `wordpress/plugins/solis-fabric-csv-import`, depending on `solis-fabric-model`. Full pipeline (parse → plan/preview → formula-injection guard → batch write with per-row isolation → WordPress writer → batch history → admin upload UI) verified live: empty-cell no-overwrite, `__CLEAR__`, multi-term taxonomies, real Fabric creation, batch history round-trip, admin capability check, and the confirm step all confirmed against the real host. 34/34 tests passing. Found and fixed a gap from Plan 3's own Task 1: the CSV fixed-header list had no column mapped to `post_title` at all — added `fabric_name`.
 
