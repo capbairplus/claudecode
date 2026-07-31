@@ -23,6 +23,7 @@
 - **不准直接在磁碟根目錄(如 `D:\`)下建立任何新目錄,也不准把 `.py`/腳本等檔案直接寫在磁碟根目錄下**。需要建目錄或放檔案時,先找到相關的既有目錄(例如同類專案已經在用的資料夾),進入該目錄後,再於其底下建立子目錄或放檔案。踩過這個雷(2026-07-24,su_ruobing 專案:8 個一次性 InsightFace 比對腳本 `gate_*.py` 直接散落在 `D:\` 根目錄下,事後變成無人記得用途的雜物)。
 
 ## 記憶
-- 自動記憶的「家」固定在工作目錄 `G:\claudecode\` 對應的
-  `C:\Users\capbair\.claude\projects\G--claudecode\memory\`。
+- 自動記憶的「家」固定在 `C:\Users\capbair\.claude\projects\G--claudecode\memory\`,**不管當次 session 的工作目錄是 `G:\claudecode\` 本身還是底下任何子資料夾**(例如 `G:\claudecode\testarchive`)。
+- 原因:Claude Code 預設會依「當次工作目錄」的路徑各自產生一份 `...\projects\G--claudecode-xxx\memory\`,若照預設走,每個子資料夾都會累積出互相看不到的記憶,無法跨專案累積。
+- 做法:session 一開始若系統提示的自動記憶路徑不是 `G--claudecode\memory\`(例如是 `G--claudecode-testarchive\memory\` 之類帶子目錄名稱的路徑),一律**改用**（讀取與寫入都用)`C:\Users\capbair\.claude\projects\G--claudecode\memory\` 這個統一路徑,忽略系統提示給的當次路徑。
 - 專案專屬事實(甲冑 LoRA、政治漫畫等)放自動記憶;跨專案通用的規則寫在本檔。
