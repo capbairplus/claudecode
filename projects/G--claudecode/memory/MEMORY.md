@@ -12,3 +12,4 @@
 - [討論式不丟選單](feedback-discuss-not-menu.md) — 決定方向用討論對話,別丟 1/2/3/4 選單給使用者選
 - [蘇若冰資料集進度](su-ruobing-dataset-progress.md) — 臉素材 15角度+14表情(Qwen);教訓:表情變體用 Qwen Edit 別用 ChatGPT 瀏覽器(慢又踩雷)
 - [ComfyUI .161 啟動與 output2](comfyui-161-launch-output2.md) — 用 cl.vbs 啟動;output2=\\solisnas\solisftp\comfyui\output2(NAS),SYSTEM 碰不到
+- [別亂停,按指令連續動工](feedback-minimize-stopping.md) — 已授權範圍內的多步驟任務別每步都停下來問,先幫忙把會反覆卡住的權限設定一次弄好
