@@ -8,3 +8,4 @@
 - [WorkflowUI 卡片進度快照 0731](workflowui-cards-progress-0731.md) — wan22_i2v/t2v、infinitetalk_image(圖片對嘴卡)皆已完成並驗證,含技術細節與服務位址
 - [長歌曲 Lip Sync MV 設計](workflowui-song-lipsync-mv-design.md) — 多鏡頭模式;第一里程碑(專案+人聲分離+波形編輯器)2026-08-04 完成並通過真實 smoke,下一步是 InfiniteTalk 批次渲染
 - [圖片風格轉換卡 style_transfer_qwen](workflowui-style-transfer-card.md) — 沿用 img2img_qwen 已驗證 graph,只調 LoRA 強度;mock 測試全過但尚未對真的 .161 送過生成
+- [Solis 包包生成卡 solis_bag_flux](workflowui-solis-bag-card.md) — 複製 txt2img_flux,換 Solis 包款 LoRA(.161 已裝 b19010/b19010_v2/b26 三條);已對真 .161 生成驗證,但輸出模糊待調參數

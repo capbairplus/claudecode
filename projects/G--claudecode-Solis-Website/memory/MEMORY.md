@@ -3,3 +3,4 @@
 - [Content status](new_solis_website_content_status.md) — what's gathered vs. blocked (fabric specs locked behind login)
 - [Check before claiming not done](check_before_claiming_not_done.md) — check Obsidian AND all git branches before saying work hasn't started
 - [Infrastructure topology](solis_infrastructure_topology.md) — CRITICAL: real solistex.com host is 192.168.1.7 via SSH, NOT the local session machine
+- [Registered member portal scope](registered_member_portal_scope.md) — 2026-08-05 decided scope: Registered-tier spec gating + inquiry mgmt, NOT full B2B; spec-only, unimplemented

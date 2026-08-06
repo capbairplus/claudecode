@@ -1,0 +1,4 @@
+- [CBAS .NET rewrite](project_cbas_dotnet_rewrite.md) — Blazor Server+MySQL, now full feature parity with Python version, built alongside it
+- [Local MySQL dev account](reference_mysql_local_dev_account.md) — full-access account exists, creds in Obsidian, don't try to GRANT a new scoped user
+- [NuGet has no sources on this machine](reference_nuget_no_sources_on_this_machine.md) — add nuget.org source before first `dotnet add package`
+- [Blazor Server gotchas](reference_blazor_server_gotchas.md) — antiforgery+restart, enhanced-nav blocks file downloads, how to verify downloads with claude-in-chrome
