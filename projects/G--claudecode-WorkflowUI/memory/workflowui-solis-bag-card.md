@@ -5,7 +5,7 @@ metadata:
   node_type: memory
   type: project
   originSessionId: 9472eae2-17be-4fba-9d10-e61ad9b0d68f
-  modified: 2026-08-06T07:51:10.293Z
+  modified: 2026-08-09T18:09:22.057Z
 ---
 
 2026-08-06 在 `backend/workflow_templates/solis_bag_flux/` 新增「Solis 包包生成」卡。
@@ -38,12 +38,17 @@ back view, full body, indoor graffiti wall background`。
 - 尺寸沿用 768×1024 直式(使用者確認,跟 txt2img_flux 一致)
 - prompt 預設帶 product_clean 範例,help_text 附 worn_context 範例可參考
 
-**已驗證**：`pytest tests/` 104 全過。啟動本機 backend、對真的 .161 送過一次完整生成
-(job 走到 `status: done`),`/api/cards`、`/api/comfy/options` 都正確回傳這張卡與三條
-LoRA 選項。**但輸出圖片明顯模糊**(用預設 steps=20、guidance=3.0、lora_strength=0.9、
-`solisb19010bag_v2` LoRA 跑出來的背包正面商品照整張失焦),還沒排查是哪個環節造成
-(LoRA 本身訓練品質、strength 太高、steps 不夠、或哪個 checkpoint 版本比較好)。
-**正式量產前應該先做參數調校**(比較 v1/v2/b26 三條 LoRA、調 steps/guidance/strength)
-再用。
+**已驗證,且已排查完模糊問題(2026-08-10)**：`pytest tests/` 104 全過。對真的 .161
+跑了 5 組對照生成(同 prompt/seed,只換 LoRA 版本與強度)：
+- `solisb19010bag_v2` 強度 0.9 → 模糊
+- `solisb19010bag_v2` 強度 0.6 → 模糊
+- `solisb19010bag`(v1)強度 0.9 → 模糊
+- `solisb19010bag_v2` 第 3 輪 epoch checkpoint → 模糊
+- `solisb26bag` 強度 0.9 → **清晰**(乾淨白底商品照,連背包上的品牌標籤文字都清楚)
+
+結論:b19010 這條 LoRA(不管 v1/v2/哪個 epoch/什麼強度)本身訓練有問題,整張圖包含
+背景都會模糊失焦,不是卡片接線或參數能救的,**要重新訓練才能用**。b26 這條完全正常。
+已把卡片預設 LoRA 跟 prompt 範例都改成 `solisb26bag`,manifest 的 LoRA 欄位
+help_text 也註明 b19010 系列先不要選。
 
 相關:[[workflowui-vision]] [[comfy-161-network-access]] [[workflowui-style-transfer-card]]
