@@ -3,4 +3,6 @@
 - [Content status](new_solis_website_content_status.md) — what's gathered vs. blocked (fabric specs locked behind login)
 - [Check before claiming not done](check_before_claiming_not_done.md) — check Obsidian AND all git branches before saying work hasn't started
 - [Infrastructure topology](solis_infrastructure_topology.md) — CRITICAL: real solistex.com host is 192.168.1.7 via SSH, NOT the local session machine
-- [Registered member portal scope](registered_member_portal_scope.md) — 2026-08-05 decided scope: Registered-tier spec gating + inquiry mgmt, NOT full B2B; spec-only, unimplemented
+- [Registered member portal scope](registered_member_portal_scope.md) — 2026-08-05 decided scope: Registered-tier spec gating + inquiry mgmt, NOT full B2B; now IMPLEMENTED (confirmed 2026-08-11)
+- [Always respond in Chinese](feedback_always_respond_in_chinese.md) — user corrected an English-drift lapse during a long code-building session; global 繁體中文 rule applies to all prose, always
+- [Fabric chat assistant](solis_fabric_chat_assistant.md) — built `solis-fabric-chat` plugin 2026-08-11: rule-book + self-hosted Ollama fallback, not deployed yet

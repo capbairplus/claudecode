@@ -10,3 +10,5 @@
 - [圖片風格轉換卡 style_transfer_qwen](workflowui-style-transfer-card.md) — 沿用 img2img_qwen 已驗證 graph,只調 LoRA 強度;mock 測試全過但尚未對真的 .161 送過生成
 - [Solis 包包生成卡 solis_bag_flux](workflowui-solis-bag-card.md) — 複製 txt2img_flux,換 Solis 包款 LoRA(.161 已裝 b19010/b19010_v2/b26 三條);已對真 .161 生成驗證,b19010 系列訓練有問題(模糊,需重練),已改預設用 b26(清晰可用)
 - [WorkflowUI 部署到 192.168.1.35](workflowui-deploy-192-168-1-35.md) — Debian、systemd 常駐、連同一個 161;3.31 其實是本機非遠端 ComfyUI;1.35 sudo 需密碼且已跑 WordPress
+- [WorkflowUI 對外公開網址](workflowui-public-url.md) — 網域根目錄是本機WordPress(C:\wordpresscb,DB capbairplus_wp);/comfyuicard/(C#版,8900,主力)、/newsradar/(5299)都是反代;改主選單直接寫DB(nav_menu term_id=11)比較快
+- [姿勢控制卡 pose_controlnet_flux](workflowui-pose-controlnet-card.md) — 角色LoRA+OpenPose ControlNet批次生姿勢,已驗證ready;.161的ControlNet模型清單、單靠骨架幾乎沒用要骨架+文字雙管齊下、strength有seed敏感度不保證張張成功、不寫服裝會生裸體、新增了asset_dir通用機制

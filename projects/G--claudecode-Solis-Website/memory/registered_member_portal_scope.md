@@ -4,7 +4,7 @@ description: "Decided scope for the first external user-management deliverable: 
 metadata:
   type: project
   originSessionId: 387ca500-541e-42dc-b543-172226d3e93a
-  modified: 2026-08-05T13:25:24.300Z
+  modified: 2026-08-11T08:55:12.631Z
 ---
 
 On 2026-08-05 the user decided the first external "user management" deliverable is a **narrow slice**, not the full B2B store: registered-member login unlocks fabric technical specs (composition/weight/width/full description/datasheet PDF — same fields the old solistex.com site locks behind login), plus an inquiry form + admin-side inquiry management with in-app reply. Explicitly NOT in scope yet: order conversion/tracking, tiered pricing, cart, checkout, payment, customer dashboard, sample requests, fabric variations.
@@ -22,3 +22,8 @@ Also updated: `new soliswebsite/Solis Website Next Tasks.md` P4 items 14–15 no
 **Why this matters:** as of 2026-08-05 this is spec-only — no code exists yet (`wordpress/plugins/` only has `solis-fabric-model`, `solis-fabric-csv-import`, `solis-news-aggregator`; confirmed via `git branch -a` that no inquiry/member/b2b work exists on any branch either). Don't assume this is built just because a thorough spec exists — check the plugins directory and git branches before claiming implementation status, per [[check-before-claiming-not-done]].
 
 **How to apply:** when this project's "user management" / "會員" / "B2B" / "inquiry" work comes up again, read this spec first before re-brainstorming from scratch — the scope decisions above are already made, only the 4 open questions in the spec's section 11 remain. If implementation has started since this memory was written, verify current state in `wordpress/plugins/solis-member/` and `wordpress/plugins/solis-inquiry/` rather than trusting this memory's "not yet implemented" claim.
+
+**Correction (2026-08-11): this is now implemented, not spec-only.** Both `wordpress/plugins/solis-member/` and `wordpress/plugins/solis-inquiry/` exist with real code (committed in `22a9770 feat: add Registered Member Portal and Inquiry system`, confirmed already on `master` before this session started). Verified live in code (not just assumed):
+- `Solis\Member\Visibility\FabricAccessGate::GATED_ACF_KEYS` actively gates 11 technical-spec ACF fields (composition, construction, weight_gsm, width, stretch, finish, waterproof_rating, breathability_rating, country_of_origin, full_description, datasheet_pdf) behind an active Registered-tier login — enforced both in REST (`RestFieldFilter` at priority 20, after `PublicFabricProjection`'s priority 10) and in `wordpress/themes/solis/single-fabric.php`. Only `product_code`/`short_description`/images stay public teasers.
+- `[solis_fabric_inquiry]` (with `?fabric=CODE` prefill) and `[solis_general_inquiry]` shortcodes exist and work, backed by an `inquiry` CPT with admin list/detail/reply.
+- This corrects an earlier misstatement made mid-session on 2026-08-11 (before checking the actual `solis-member` code) that specs were currently fully public — they are not; the gate is live.
