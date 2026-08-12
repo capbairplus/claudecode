@@ -1,0 +1,2 @@
+- [Book repositioning](book_repositioning.md) — Codex 入門書轉型為非工程師職場 AI Agent 生產力案例集，7 個任務原型已定案
+- [Brainstorm style feedback](feedback_brainstorm_style.md) — brainstorm 階段用文字澄清，不要用 AskUserQuestion 強制選項卡住使用者

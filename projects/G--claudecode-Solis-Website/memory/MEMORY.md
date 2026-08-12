@@ -5,4 +5,4 @@
 - [Infrastructure topology](solis_infrastructure_topology.md) — CRITICAL: real solistex.com host is 192.168.1.7 via SSH, NOT the local session machine
 - [Registered member portal scope](registered_member_portal_scope.md) — 2026-08-05 decided scope: Registered-tier spec gating + inquiry mgmt, NOT full B2B; now IMPLEMENTED (confirmed 2026-08-11)
 - [Always respond in Chinese](feedback_always_respond_in_chinese.md) — user corrected an English-drift lapse during a long code-building session; global 繁體中文 rule applies to all prose, always
-- [Fabric chat assistant](solis_fabric_chat_assistant.md) — built `solis-fabric-chat` plugin 2026-08-11: rule-book + self-hosted Ollama fallback, not deployed yet
+- [Fabric chat assistant](solis_fabric_chat_assistant.md) — `solis-fabric-chat` plugin: rule-book + Ollama fallback (live since 2026-08-11) plus a LINE bot channel (2026-08-12, built but blocked on a public HTTPS webhook URL)

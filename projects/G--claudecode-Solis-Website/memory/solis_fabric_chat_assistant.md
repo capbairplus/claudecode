@@ -1,11 +1,11 @@
 ---
 name: solis-fabric-chat-assistant
-description: "Solis chatbot: brainstormed and built 2026-08-11 as wordpress/plugins/solis-fabric-chat — rule-book + self-hosted Ollama fallback; NOT deployed; a separate, superseded design exists on an unmerged feature/solis-ai-robot branch"
+description: "Solis chatbot (wordpress/plugins/solis-fabric-chat): rule-book + self-hosted Ollama fallback, deployed live 2026-08-11; LINE bot channel added 2026-08-12 but blocked on a public HTTPS webhook URL; a separate superseded design sits on the unmerged feature/solis-ai-robot branch"
 metadata: 
   node_type: memory
   type: project
   originSessionId: 621fdbe0-b149-4124-b8a0-0fb96996a38e
-  modified: 2026-08-11T09:09:03.724Z
+  modified: 2026-08-11T17:03:09.999Z
 ---
 
 ## What was decided and built (2026-08-11)
@@ -51,6 +51,61 @@ real browser by hand.
 
 Ollama model note: no `deepseek-r1:7b` tag exists on the host — using `deepseek-r1:latest` (~8B)
 instead, confirmed live via `/api/tags`.
+
+## Follow-up fixes from live user testing (2026-08-11, same day)
+
+The user actually clicked around the deployed widget and found two real issues:
+1. **No loading feedback** — a correct ~18s Ollama-fallback response looked identical to a hang.
+   Fixed: `OllamaChatClient` now sends `"think": false` (deepseek-r1 skips its chain-of-thought
+   trace — cut a trivial prompt from ~18s to ~1.4–4s) + `num_predict: 400`; widget now shows an
+   animated 3-dot typing indicator, disables Send while waiting, and supports Ctrl/Cmd+Enter to
+   submit with a persistent hint line (not just placeholder text, which disappears once the user
+   types). Version bumped 0.1.0 → 0.1.2 across these fixes for cache-busting, each redeployed and
+   reverified live.
+2. **Ollama host contention is a real, already-observed risk, not hypothetical.** Mid-session, even
+   a trivial "say hi" (`num_predict: 10`, `think: false`) to `192.168.1.161:11434` timed out at 30s
+   and then 20s on retry, while `/api/tags` (lightweight metadata) responded in ~15ms both times —
+   the Ollama *server* is up, but *inference* is blocked/queued behind something else (consistent
+   with [[CLAUDE.md]]'s note that this machine also does other GPU work, e.g. LoRA training, and
+   isn't dedicated to Ollama). Response: bumped `OllamaChatClient`'s `wp_remote_post` timeout
+   30s → 45s for more grace, but this is fundamentally a shared-resource capacity risk, not something
+   fixable purely in `solis-fabric-chat`'s code. The FAQ and taxonomy-filter branches are unaffected
+   (they never call Ollama at all) — only the open-ended LLM-fallback branch degrades to the
+   "temporarily unavailable" message when the host is this busy, which is the designed fallback
+   behavior working correctly, not a crash.
+
+**How to apply:** if the chatbot's LLM-fallback branch seems slow or reports "unavailable" again,
+check `curl http://192.168.1.161:11434/api/tags` (should be near-instant) vs. an actual `/api/chat`
+call before assuming a code bug — it may just be that machine busy with unrelated work again. If this
+becomes a recurring problem, consider a request queue/concurrency limit (explicitly deferred in the
+original design decision — "ship first, add if traffic shows a real problem") or a second Ollama
+host.
+
+## LINE channel added (2026-08-12)
+
+User asked to make the same assistant reply through a LINE bot. Built as a **second front end onto
+the same `ChatOrchestrator`**, not a second bot: `src/Line/` (`LineChannelConfig`,
+`LineSignatureVerifier`, `LineLocale`, `LineMessageBuilder`, `LineMessagingClient`) +
+`Rest/LineWebhookController` (`POST /wp-json/solis-chat/v1/line/webhook`). Plugin 0.1.2 → 0.2.0.
+Suite now 39 tests / 81 assertions green, lints clean.
+
+Design choices worth remembering:
+- Credentials are wp-config constants (`SOLIS_LINE_CHANNEL_SECRET`, `SOLIS_LINE_CHANNEL_ACCESS_TOKEN`),
+  matching `SOLIS_OLLAMA_URL`; the webhook route is **only registered when both are set**, so an
+  unconfigured site can't expose an unauthenticated endpoint.
+- Auth is the `X-Line-Signature` HMAC only (no WP nonce — LINE posts from the public internet), and
+  an empty secret fails closed.
+- Locale comes from the message text (Han character → zh), because LINE has no zh/en toggle.
+- Gating is safe by construction: a LINE user is never a logged-in WP user, so `FabricAccessGate`
+  gives public-only fields.
+
+**NOT deployed, NOT verified live as of 2026-08-12.** The blocker is infrastructure, not code: LINE's
+servers must reach the webhook over **public HTTPS with a valid certificate**, and the install
+currently answers only on `http://192.168.1.7:8082` (LAN) — see [[solis-infrastructure-topology]].
+Every link inside a reply (permalink, inquiry URL, hero image) must likewise be a public URL, so
+`home_url()` has to be the public HTTPS origin; http:// hero images are dropped outright because
+LINE requires HTTPS for images. Also needs "Auto-reply messages" turned off in the LINE Official
+Account Manager, or the canned reply fires alongside the bot's answer.
 
 ## The other chatbot design — don't confuse the two
 

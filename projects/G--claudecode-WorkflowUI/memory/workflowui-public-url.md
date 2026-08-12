@@ -89,4 +89,10 @@ C# 版的 manifest 系統是 Python 版的移植版,**新卡片/新機制要先�
 `/api/generate` 送出、輪詢 `/api/jobs/{id}` 到 `status:done`,實際圖片檢查過姿勢/服裝/身份正常)。
 之後任何新卡片都要記得比照這次的模式,兩邊都做,不要以為改 Python 版公開網址就會自動看到。
 
+`caricature_qwen`(人物轉卡通/政治漫畫人物,見 [[workflowui-caricature-card]])2026-08-12 同樣
+兩邊都做好並各自對真 .161 驗證過。另外注意:**C# 版 exe 開機不會自動啟動**,那天發現 8900 完全
+沒在 listen(公開網址那條路徑等於 502),是手動
+`Start-Process ...\WorkflowUiCsharpPoc.exe --urls http://127.0.0.1:8900 -WindowStyle Hidden`
+起來的——之後使用者說「公開網址打不開」,先查這支 exe 在不在。
+
 相關:[[workflowui-vision]] [[workflowui-deploy-192-168-1-35]] [[workflowui-pose-controlnet-card]]
