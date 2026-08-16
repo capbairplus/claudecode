@@ -4,6 +4,7 @@ description: "WorkflowUI 加影片類卡片(輸出是影片而非圖片)要動�
 metadata:
   type: project
   originSessionId: current
+  modified: 2026-08-16T04:14:13.503Z
 ---
 
 **2026-07-26 新增 `faceswap_video`(影片換臉)卡片時發現**:WorkflowUI 原本的後端/前端只處理過
@@ -35,11 +36,10 @@ metadata:
 `audio` 接回 `VHS_LoadVideo` 的音軌輸出做 passthrough)。這個模式(拆幀→處理→組回,`gifs` 輸出
 key)之後如果要做「圖生影片」「lip sync」之類的卡片,可以直接照抄同一套後端改動,不用重新踩雷。
 
-**⚠ .161 上 ReActorFaceSwap 目前沒被載入**:`curl http://192.168.1.161:8188/object_info/ReActorFaceSwap`
-回傳空物件 `{}`,代表 ReActor 這個 custom node 的 import 失敗了(常見原因是 insightface/
-onnxruntime 相關依賴壞掉)。這不是這次新增影片換臉卡片造成的——連既有的圖片版 `faceswap_reactor`
-卡片一樣會受影響,實際送出生成前會拿到「node type not found」。真的要跑 ReActor 相關卡片(圖片或
-影片)之前,要先到 .161 本機檢查 ComfyUI 啟動 log 找 ReActor 的 import 錯誤訊息,不能只看
-`faceswap_reactor` manifest 寫 `status: ready` 就假設能跑。
+**⚠ .161 上根本沒有安裝 ReActor**(2026-08-16 更正):`custom_nodes` 底下**沒有任何 ReActor 目錄**,
+啟動 log 也沒有 ReActor 的 import 錯誤——所以先前寫的「import 失敗、可能是 insightface/onnxruntime
+壞掉」是錯的推測,實際上是**壓根沒裝**。`faceswap_reactor` 和 `faceswap_video` 兩張卡因此都不能用
+(送出會拿到 node type not found),要能用得先去 .161 安裝 ComfyUI-ReActor。不能只看 manifest 寫
+`status: ready` 就假設能跑。
 
 相關:[[workflowui-vision]] [[comfy-161-network-access]]

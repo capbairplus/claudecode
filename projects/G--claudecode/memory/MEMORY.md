@@ -13,3 +13,23 @@
 - [蘇若冰資料集進度](su-ruobing-dataset-progress.md) — 臉素材 15角度+14表情(Qwen);教訓:表情變體用 Qwen Edit 別用 ChatGPT 瀏覽器(慢又踩雷)
 - [ComfyUI .161 啟動與 output2](comfyui-161-launch-output2.md) — 用 cl.vbs 啟動;output2=\\solisnas\solisftp\comfyui\output2(NAS),SYSTEM 碰不到
 - [別亂停,按指令連續動工](feedback-minimize-stopping.md) — 已授權範圍內的多步驟任務別每步都停下來問,先幫忙把會反覆卡住的權限設定一次弄好
+- [WorkflowUI 專案願景與範圍](workflowui-vision.md) — 底層是 python 呼叫 ComfyUI API;LoRA 動態列出、批次 prompts 檔、生影片/lip sync 之後用同一套機制擴充;3 張卡現況
+- [.161 網路可達性](comfy-161-network-access.md) — 這個 sandbox 對 .161:8188 的直連可達性會變動(同一 session 內遇過先失敗後通),每次用前先實測,SSH 是穩定備援
+- [驗證後才下結論](verify-before-claiming-unreachable.md) — 一次連線失敗不代表「連不到」,下結論前要實際測
+- [角度/姿勢類效果要節點+文字雙管齊下](multiangle-node-plus-text-lesson.md) — 只餵數值給控制節點不夠,proven 腳本通常還把描述文字寫進 prompt;漏了會「看起來有跑但沒效果」不報錯
+- [影片類卡片要動的後端範圍 + ReActor 沒安裝](video-card-pattern-and-reactor-gap.md) — 輸出是影片時「不用改後端」不成立,VHS_VideoCombine 輸出在 `gifs` key;.161 上根本沒裝 ReActor(不是 import 失敗),兩張換臉卡都不能用
+- [.161 ComfyUI 升級到 v0.33.1](comfyui-161-upgrade-0816.md) — 2026-08-16 從 v0.18.2 升上來;兩個必須補回的本地修改(ArtGallery 路徑、logger 的 OSError 保護)、安全重啟只能用 `comfyui` 排程工作、pip 的 ngc extra-index 掛了、升 core 會讓 custom node 壞掉要一起更新
+- [LTX 2.3 卡片前置狀態](workflowui-ltx23-card.md) — .161 模型檔已補齊可載入(GGUF Q4 走 unet\ hardlink);VRAM 決定速度不是門檻;LTX-2.5 已發布;ComfyUI 內建 2.3/2.5 官方 template 可當 proven graph;還沒實測速度
+- [WorkflowUI 卡片進度快照 0731](workflowui-cards-progress-0731.md) — wan22_i2v/t2v、infinitetalk_image(圖片對嘴卡)皆已完成並驗證,含技術細節與服務位址
+- [長歌曲 Lip Sync MV 設計](workflowui-song-lipsync-mv-design.md) — 多鏡頭模式;第一里程碑(專案+人聲分離+波形編輯器)2026-08-04 完成並通過真實 smoke,下一步是 InfiniteTalk 批次渲染
+- [圖片風格轉換卡 style_transfer_qwen](workflowui-style-transfer-card.md) — 沿用 img2img_qwen 已驗證 graph,只調 LoRA 強度;mock 測試全過但尚未對真的 .161 送過生成
+- [Solis 包包生成卡 solis_bag_flux](workflowui-solis-bag-card.md) — 複製 txt2img_flux,換 Solis 包款 LoRA(.161 已裝 b19010/b19010_v2/b26 三條);已對真 .161 生成驗證,b19010 系列訓練有問題(模糊,需重練),已改預設用 b26(清晰可用)
+- [WorkflowUI 部署到 192.168.1.35](workflowui-deploy-192-168-1-35.md) — Debian、systemd 常駐、連同一個 161;3.31 其實是本機非遠端 ComfyUI;1.35 sudo 需密碼且已跑 WordPress
+- [WorkflowUI 對外公開網址](workflowui-public-url.md) — 網域根目錄是本機WordPress(C:\wordpresscb,DB capbairplus_wp);/comfyuicard/(C#版,8900,主力,已改成Windows Service自動重啟)、/newsradar/(5299)都是反代;改主選單直接寫DB(nav_menu term_id=11)比較快
+- [人物轉卡通/政治漫畫人物卡 caricature_qwen](workflowui-caricature-card.md) — 只做 caricature 誇張化、風格內建;三段獨立 concat 讓批次保留共用參數(可複用模式);已對真 .161 驗證
+- [Qwen Edit 五張+音樂+InstantID 0816](workflowui-qwen-music-instantid-0816.md) — 複製已驗證 graph 是新增 Qwen 卡最省事的模式;音訊輸出機制;.161 補裝 ACE-Step 與整套 InstantID(含安全重啟 ComfyUI 的做法)
+- [後製/工具類卡片 0816](workflowui-postprocess-cards-0816.md) — 放大/去背/修臉/反推提示詞/首尾幀影片/影片補幀共 7 張已驗證;文字輸出卡機制;VHS 對無音軌影片會爆的修法;.161 上 VACE/LivePortrait 等做不了的清單
+- [姿勢控制卡 pose_controlnet_flux](workflowui-pose-controlnet-card.md) — 角色LoRA+OpenPose ControlNet批次生姿勢,已驗證ready;.161的ControlNet模型清單、單靠骨架幾乎沒用要骨架+文字雙管齊下、strength有seed敏感度不保證張張成功、不寫服裝會生裸體、新增了asset_dir通用機制
+- [指令式圖片編輯兩張卡 0816](workflowui-instruct-edit-cards.md) — Klein 9B(零下載,4步,用Qwen3當text encoder不是Mistral,VAE要換成flux2-vae)與 Kontext Dev(下載11.9GB,20步)皆已對真 .161 驗證;含同指令下兩者效果差異
+- [ComfyUI 內建 template 包成 subgraph](comfyui-builtin-template-subgraph.md) — 做新卡最好的 proven graph 來源;`/templates/index.json` 取得、有BOM、真正結構在 definitions.subgraphs 要手動展開、widgets 對位要查 input_order
+- [PowerShell 串 ssh 的引號陷阱](powershell-ssh-quote-trap.md) — 內層引號被吃掉害 curl 的 -o 失效把 12GB 倒進本機;改用 scp 腳本檔或 Bash 單引號,遠端輸出要重導到遠端 log

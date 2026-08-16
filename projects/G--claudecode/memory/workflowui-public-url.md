@@ -69,6 +69,19 @@ C# 版的 manifest 系統是 Python 版的移植版,**新卡片/新機制要先�
 **C# 專案的 build/部署眉角**:
 - 改完 `.cs`/`.csproj` 後要 `dotnet build`(在 `C:\wordpresscb\workflowui-csharp-poc\` 下跑),
   build 前要先 `taskkill //F` 掉正在跑的 `WorkflowUiCsharpPoc.exe`(不然檔案被佔用)。
+- **2026-08-16 起已經改成 Windows Service,不用再手動跑 exe**:服務名稱
+  `WorkflowUiCsharpPoc`,`start= auto`(開機自動啟動)+ `sc failure` 設定意外結束自動重啟
+  (5 秒後重試,連續 3 次,24 小時重置計數)。踩過的坑:`Program.cs` 原本沒有
+  `builder.Host.UseWindowsService()`,直接 `sc create` 指到 exe 會因為收不到 SCM 的
+  「已啟動」回報而失敗,補了這行 + `Microsoft.Extensions.Hosting.WindowsServices` 套件才能用
+  `sc create`/`sc failure`/`sc start` 正常註冊。`sc create` 需要系統管理員權限,Claude Code
+  的終端機不是提權執行,這三行 `sc.exe create/failure/start` 只能請使用者自己在提權
+  PowerShell 跑;另外 `sc.exe` 的 `binPath=` 引數如果要在裡面包含空白的路徑,PowerShell
+  不能用 cmd.exe 的 `\"..\"` 跳脫法(`\"` 在 PowerShell 裡會提前把字串斷開,`sc create` 只
+  會印出 usage 說明,不會真的執行),要用一般雙引號包住整個值就好(這個 exe 路徑本身沒有
+  空白,所以其實不用內層引號)。之後改完程式碼重新 build 完,要記得
+  `sc.exe stop WorkflowUiCsharpPoc` 再 `sc.exe start WorkflowUiCsharpPoc`(或直接
+  `Restart-Service`)讓新 build 生效,不用再 `taskkill` + 手動跑 exe 了。
 - **`workflow_templates/**/*.json` 以外的資產(例如新卡片自帶的 PNG 骨架圖、`wwwroot/` 前端檔案)
   不會自動複製到 `bin/Debug/net8.0-windows/` build 輸出目錄**,要在 `.csproj` 補
   `<Content Update="路徑\**\*.副檔名"><CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory></Content>`
