@@ -19,6 +19,7 @@
 - [角度/姿勢類效果要節點+文字雙管齊下](multiangle-node-plus-text-lesson.md) — 只餵數值給控制節點不夠,proven 腳本通常還把描述文字寫進 prompt;漏了會「看起來有跑但沒效果」不報錯
 - [影片類卡片要動的後端範圍 + ReActor 沒安裝](video-card-pattern-and-reactor-gap.md) — 輸出是影片時「不用改後端」不成立,VHS_VideoCombine 輸出在 `gifs` key;.161 上根本沒裝 ReActor(不是 import 失敗),兩張換臉卡都不能用
 - [.161 ComfyUI 升級到 v0.33.1](comfyui-161-upgrade-0816.md) — 2026-08-16 從 v0.18.2 升上來;兩個必須補回的本地修改(ArtGallery 路徑、logger 的 OSError 保護)、安全重啟只能用 `comfyui` 排程工作、pip 的 ngc extra-index 掛了、升 core 會讓 custom node 壞掉要一起更新
+- [.161 GPU 被 ollama/Blender 佔住會慢 25 倍](comfy-161-shared-machine-gpu.md) — ollama qwen3:8b 常駐 6GB 且 keep_alive 一直續期;測速前先跑 nvidia-smi + ollama ps,跑完要 POST /free 還顯存;含一長串已排除的錯誤假設
 - [LTX 2.3 卡片前置狀態](workflowui-ltx23-card.md) — .161 模型檔已補齊可載入(GGUF Q4 走 unet\ hardlink);VRAM 決定速度不是門檻;LTX-2.5 已發布;ComfyUI 內建 2.3/2.5 官方 template 可當 proven graph;還沒實測速度
 - [WorkflowUI 卡片進度快照 0731](workflowui-cards-progress-0731.md) — wan22_i2v/t2v、infinitetalk_image(圖片對嘴卡)皆已完成並驗證,含技術細節與服務位址
 - [長歌曲 Lip Sync MV 設計](workflowui-song-lipsync-mv-design.md) — 多鏡頭模式;第一里程碑(專案+人聲分離+波形編輯器)2026-08-04 完成並通過真實 smoke,下一步是 InfiniteTalk 批次渲染
@@ -33,3 +34,4 @@
 - [指令式圖片編輯兩張卡 0816](workflowui-instruct-edit-cards.md) — Klein 9B(零下載,4步,用Qwen3當text encoder不是Mistral,VAE要換成flux2-vae)與 Kontext Dev(下載11.9GB,20步)皆已對真 .161 驗證;含同指令下兩者效果差異
 - [ComfyUI 內建 template 包成 subgraph](comfyui-builtin-template-subgraph.md) — 做新卡最好的 proven graph 來源;`/templates/index.json` 取得、有BOM、真正結構在 definitions.subgraphs 要手動展開、widgets 對位要查 input_order
 - [PowerShell 串 ssh 的引號陷阱](powershell-ssh-quote-trap.md) — 內層引號被吃掉害 curl 的 -o 失效把 12GB 倒進本機;改用 scp 腳本檔或 Bash 單引號,遠端輸出要重導到遠端 log
+- [MiniMax H3 兩張影片卡](workflowui-minimax-h3-cards.md) — ComfyUI 0.33.1 內建節點零安裝;4 步 turbo LoRA 110 秒出 5 秒有聲影片;NVFP4 在 Ada 可用(模擬);檔名前綴不能帶子資料夾

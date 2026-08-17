@@ -64,6 +64,31 @@ CLIPTextEncode ×2 → LTXVConditioning → EmptyLTXVLatentVideo + LTXVEmptyLate
 LTXVConcatAVLatent → SamplerCustomAdvanced(CFGGuider cfg=1、euler)→ LTXVSeparateAVLatent →
 VAEDecode + LTXVAudioVAEDecode → CreateVideo → SaveVideo(輸出在 history 的 `images` key,`animated: true`)。
 
-**還沒做**:第二階段 spatial upscale(`ltx-2.3-spatial-upscaler-x2-1.1.safetensors`,約 1GB,還沒下載)。
+**卡片已建立**(2026-08-16),兩張共用 group `ltx23_video`(UI 上是一張卡、用 select 切換):
+- `ltx23_t2v`(快速)— 單階段 8 步,output_node 21。768×512 4 秒約 2 分鐘。
+- `ltx23_t2v_hq`(高畫質)— 兩階段 + spatial upscale(`ltx-2.3-spatial-upscaler-x2-1.1.safetensors`
+  已下載到 `models\latent_upscale_models\`),output_node 35。寬高填的是**第一階段**,輸出是 2 倍
+  (預設 640×384 → 1280×768),4 秒約 6 分鐘。
+
+兩張都有批次 prompts(`text_batch_row_key`)+ seed 遞增。**幀數用一個 `PrimitiveInt`(node 40)同時
+餵給 `EmptyLTXVLatentVideo.length` 和 `LTXVEmptyLatentAudio.frames_number`** —— manifest 一個欄位只能綁
+一個 node/input,要同步兩處就靠中介 Primitive 節點,這個模式其他卡也能用。
+
+`SaveVideo` 的輸出落在 history 的 **`images`** key(不是 `gifs`),而 `routers/generate.py` 已經同時
+讀 `images`/`gifs`/`audio`,所以**後端完全不用改**。
+
+寬高欄位用 `integer` 不用 `select`:`workflow_engine._set_input` 不做型別轉換,select 的值是字串,
+寫進 INT 輸入有風險。
+
+**驗證狀態:全部通過(2026-08-17 完成端對端)**。manifest 載入 OK(兩張都 ready)、114 個既有測試
+全過、節點/參數驗證零 findings、透過 WorkflowUI `/api/generate` 實際生成成功:
+768×512 / 97 幀 / 8 步,**每步 10.64 秒、整支 204.68 秒(3.4 分鐘)**,輸出 h264 768×512 4.04 秒 +
+aac 48kHz 立體聲 4.01 秒,檔案正確落在 `scene_folder` 底下。
+
+⚠ 這個速度只在 **GPU 空著**時成立(`ollama ps` 空、VRAM used ~571MiB)。被 ollama 佔住時同一張卡
+會變成每步 350–400 秒,見 [[comfy-161-shared-machine-gpu]]——測速前一定要先確認。
+
+`LTXAVTextEncoderLoader.device` 有 `default` / `cpu` 兩個選項。卡片用 `default`(那是實測跑出
+91/137/183 秒的設定)。`cpu` 我試過但在機器被佔用時測的,**沒有有效對照**,別當成已驗證的優化。
 
 相關:[[comfyui-161-upgrade-0816]] [[video-card-pattern-and-reactor-gap]] [[workflowui-vision]]
