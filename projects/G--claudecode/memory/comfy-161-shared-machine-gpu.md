@@ -28,6 +28,16 @@ ollama ps                               # 看有沒有模型常駐 GPU、佔多�
 ```
 機器忙的時候測出來的數字沒有意義,不要拿去下效能結論、更不要據此改設定。
 
+**WorkflowUI 這邊已經修掉(2026-08-17)**:`services/ollama_expand.py` 的 payload 加了
+`"keep_alive": 0`,擴寫完立刻卸載模型。實測驗證:帶這個參數的請求跑完後,`ollama ps` 的 `UNTIL`
+欄位從「4 minutes from now」變成 **`Stopping...`**。
+**配套**:同一個函式的 httpx timeout 從 60 秒放寬到 **180 秒**,並把 timeout 跟「連不到」分成不同
+錯誤訊息。原因是加了 `keep_alive: 0` 之後每次擴寫都要重新載入模型,**若當下 GPU 正忙,ollama 會把
+權重塞到 CPU**(`ollama ps` 的 PROCESSOR 顯示 `76%/24% CPU/GPU`),推論慢一個量級——實測一句
+「Say OK」花了 **75 秒**,原本 60 秒的 timeout 會讓擴寫直接 502 失敗。用「慢一點」換「直接失敗」
+是不划算的。
+⚠ **這只管得住 WorkflowUI 自己的呼叫**,[[solis-news-aggregator-ollama-conflict]] 那邊要另外處理。
+
 **ollama 的 keep_alive 會一直續期**:`ollama ps` 的「4 minutes from now」監看了 9 分半完全沒有倒數,
 代表有東西持續在送請求。WorkflowUI 自己的 `llm_expand`(`services/ollama_expand.py`,提示詞擴寫)
 就是會打 ollama 的其中一個來源。要釋放得用 `ollama stop <model>`,但那可能中斷別人正在進行的工作,

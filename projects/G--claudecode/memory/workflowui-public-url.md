@@ -57,8 +57,10 @@ Apache 的 `ProxyPass /comfyuicard/` 從 8900 改到 8899(方向錯了),被使�
 
 ## 兩套怎麼保持同步
 
-C# 版的 manifest 系統是 Python 版的移植版,**新卡片/新機制要先在 Python 版做出來驗證過,再手動
-移植到 C# 版**,不會自動同步,兩邊是分開維護的程式碼:
+⚠ **這段的「先 Python 再移植」已作廢**(2026-08-18,見 [[workflowui-csharp-only]]):**新卡片與新
+機制一律直接做在 C# 版**,Python 版不再跟進。以下的對照表仍然有效,拿來查兩邊哪個檔案對應哪個。
+
+C# 版的 manifest 系統是 Python 版的移植版,兩邊是分開維護的程式碼、不會自動同步:
 
 - `Models/ManifestModels.cs` ≈ Python `manifest_schema.py`
 - `Services/ManifestLoader.cs` ≈ `manifest_loader.py`
@@ -108,4 +110,48 @@ C# 版的 manifest 系統是 Python 版的移植版,**新卡片/新機制要先�
 `Start-Process ...\WorkflowUiCsharpPoc.exe --urls http://127.0.0.1:8900 -WindowStyle Hidden`
 起來的——之後使用者說「公開網址打不開」,先查這支 exe 在不在。
 
-相關:[[workflowui-vision]] [[workflowui-deploy-192-168-1-35]] [[workflowui-pose-controlnet-card]]
+`minimax_h3_{t2v,i2v,flf2v,r2v}`(見 [[workflowui-minimax-h3-cards]])2026-08-18 兩邊都做好。
+**又踩了同一個坑**:先只做 Python 版,使用者問「我怎麼沒在公開網址看到這張卡」才發現漏了移植。
+這次學到的新細節:**移植純 manifest 卡片不需要 `dotnet build`、也不需要重啟服務**——
+`ManifestLoader.LoadCards()` 是每次請求重掃目錄,只要把資料夾同時複製到
+`workflow_templates\`(原始碼,給之後 build 用)和 `bin\Debug\net8.0-windows\workflow_templates\`
+(服務實際讀的),`/api/cards` 立刻就會多出來。要 build 的只有改 `.cs` 或加非 JSON 資產時。
+
+`ltx23_t2v` / `ltx23_t2v_hq` 也在 2026-08-18 一起搬過去並在 C# 版各跑一支確認(225 秒 / 285 秒)。
+**兩邊目前都是 41 張卡、完全同步。**
+
+**C# 版的 group 已於 2026-08-18 補上**(index 摺疊 + card.html 的模式 select),改了三處:
+`Program.cs` 的 `/api/cards` 列表 DTO 補 `group`/`group_label`(原本只回 id/title/description/
+category/status,前端根本拿不到 group)、`wwwroot/index.html` 加 `collapseGroups()`/`groupEntry()`
+(照抄 Python 版 index.html 的做法,群組連到 `card.html?group=...`)、`wwwroot/card.html` 把 init()
+裡「載入 manifest + 建表單」抽成 `loadCardForm(id)` 並加 `renderGroupSwitch()`(`cardId` 從 `const`
+改 `let`,submit handler 只註冊一次、送出時讀當下的 `cardId`)。`app.js` 的 `CARD_ICONS` 同時補了
+6 張新卡與 7 個群組 key 的圖示(群組 tile 用 group key 查圖示)。摺疊後首頁從 41 張變 30 個 tile。
+
+**同時新增 `group_order`(兩邊都有)**:manifest 的選填整數,決定群組裡哪張先開、下拉怎麼排;
+沒填的排最後、維持原本順序,所以既有群組(換臉、放大、Wan)行為不變。Python 端動
+`manifest_schema.py`+`routers/cards.py`+`frontend/{index,card}.html`,C# 端動
+`Models/ManifestModels.cs`+`Program.cs`+`wwwroot/{index,card}.html`。已設定:
+`minimax_h3_t2v/i2v/flf2v/r2v` = 1/2/3/4、`ltx23_t2v`/`ltx23_t2v_hq` = 1/2。
+順手修掉 Python `frontend/card.html` 把模式下拉的 label 寫死成「換臉方法」的問題(掛在 MiniMax
+卡上會顯示錯字),改成中性的「模式」,跟 C# 版一致。
+
+**Python 版(8899)改到 `.py` 要重啟才生效**(manifest 是每次請求重掃,但 schema/router 是啟動時
+載入的):`taskkill //F //PID <8899 的 pid>` 之後 `cmd //c start "" //min run_hidden.vbs`,約 8 秒起來。
+
+**兩個部署踩到的雷**:
+1. **`sc.exe stop` / `Stop-Service` 需要提權**,Claude Code 的終端機不是提權執行(回「存取被拒 5」),
+   所以**改 `.cs` 後的 build+重啟只能請使用者在系統管理員 PowerShell 跑**:
+   `Stop-Service WorkflowUiCsharpPoc; dotnet build <csproj> -c Debug; Start-Service WorkflowUiCsharpPoc`。
+   純 manifest 卡片複製則完全不用碰服務。
+2. **驗證新 build 不必碰正式服務**:`dotnet build -o <暫存目錄>` 出一份(Content 規則會一併複製
+   `workflow_templates` 與 `wwwroot`),再用**環境變數**換埠跑起來測。⚠ `--urls` 沒有用——
+   `appsettings.json` 的 `Kestrel:Endpoints:Http:Url` 會蓋掉它(log 會出現 "Overriding address(es)"
+   然後撞埠失敗),要用 `Kestrel__Endpoints__Http__Url=http://127.0.0.1:8901` 這種環境變數才換得掉。
+
+**原本的狀況(已修)**:C# 前端沒有實作 group:`wwwroot/app.js` 裡完全沒有 group 相關程式碼,所以 `minimax_h3_video`、
+`ltx23_video`、`faceswap` 這些群組在公開網址上都是各卡分開列(Python 版才會收成一張用 select 切換)。
+另外 `app.js` 的 `CARD_ICONS` 按 card id 對應圖示,沒對應到的卡 fallback 成通用 image 圖示——新搬過去
+的 6 張影片卡目前都是那個圖示。兩者都不影響功能。
+
+相關:[[workflowui-vision]] [[workflowui-deploy-192-168-1-35]] [[workflowui-pose-controlnet-card]] [[workflowui-minimax-h3-cards]]

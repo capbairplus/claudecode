@@ -85,8 +85,21 @@ VAEDecode + LTXVAudioVAEDecode → CreateVideo → SaveVideo(輸出在 history �
 768×512 / 97 幀 / 8 步,**每步 10.64 秒、整支 204.68 秒(3.4 分鐘)**,輸出 h264 768×512 4.04 秒 +
 aac 48kHz 立體聲 4.01 秒,檔案正確落在 `scene_folder` 底下。
 
-⚠ 這個速度只在 **GPU 空著**時成立(`ollama ps` 空、VRAM used ~571MiB)。被 ollama 佔住時同一張卡
-會變成每步 350–400 秒,見 [[comfy-161-shared-machine-gpu]]——測速前一定要先確認。
+`ltx23_t2v_hq` 也在 2026-08-17 完成端對端:640×384 → 輸出 **1280×768**、4.04 秒 + aac 音軌,
+耗時 **617 秒(10 分 17 秒)**,第一階段 32.35s/it、第二階段 21.38s/it。注意這次跑的時候 ollama
+還佔著約 2.2GB,所以比 GPU 全空時直送同一個 graph 的 **354 秒**慢了將近一倍——**2GB 的差距就足以
+讓 13.4GB 的模型開始 offload**,可見這張卡對顯存有多敏感。
+
+**2026-08-18 才移植到 C# 版**(8900,公開網址背後那套;2026-08-16 做卡時漏了這步,所以公開網址上
+一直看不到這兩張)。移植就是把資料夾複製到 `workflow_templates\` 和 `bin\Debug
+et8.0-windowsworkflow_templates\`,不用 rebuild 也不用重啟服務。C# 版各跑一支確認過:
+`ltx23_t2v` 768×512/97 幀 **225 秒**(487KB)、`ltx23_t2v_hq` 640×384→**1280×768** **285 秒**(790KB),
+兩支都帶 AAC 音軌。**HQ 這 285 秒比 Python 版當初量的 617 秒快很多,是因為當時 ollama 佔著 2.2GB**
+——同一件事的再一次印證。畫質對照:HQ 明顯乾淨,快速版同 prompt 會在主體上生怪東西(紙船上多一個
+娃娃頭),要交付的成品建議直接走 HQ。見 [[workflowui-public-url]]。
+
+⚠ 上面的速度只在 **GPU 空著**時成立(`ollama ps` 空、VRAM used ~571MiB)。被 ollama 完整佔住時
+同一張卡會變成每步 350–400 秒,見 [[comfy-161-shared-machine-gpu]]——測速前一定要先確認。
 
 `LTXAVTextEncoderLoader.device` 有 `default` / `cpu` 兩個選項。卡片用 `default`(那是實測跑出
 91/137/183 秒的設定)。`cpu` 我試過但在機器被佔用時測的,**沒有有效對照**,別當成已驗證的優化。
