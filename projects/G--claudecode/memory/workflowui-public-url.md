@@ -118,7 +118,13 @@ C# 版的 manifest 系統是 Python 版的移植版,兩邊是分開維護的程�
 (服務實際讀的),`/api/cards` 立刻就會多出來。要 build 的只有改 `.cs` 或加非 JSON 資產時。
 
 `ltx23_t2v` / `ltx23_t2v_hq` 也在 2026-08-18 一起搬過去並在 C# 版各跑一支確認(225 秒 / 285 秒)。
-**兩邊目前都是 41 張卡、完全同步。**
+2026-08-19 01:15 使用者跑完提權重建後 **C# 版變 46→47 張、Python 版停在 41 張**(C#-only 決定之後
+Python 落後是預期的)。多出來的是別的 session 直接做在 C# 版的卡:`animatediff_sd15`、
+`controlnet_compose_flux`、`txt2img_anime`、`txt2img_sdxl`、`txt2img_zimage`。
+⚠ **它們原本只寫進原始碼的 `workflow_templates\`、沒複製到 `bin\Debug\net8.0-windows\`,
+所以一直沒上線,是我這次 rebuild 才連帶推上公開網址的**(build 會把 Content 複製過去)。
+教訓:做完卡片一定要兩個目錄都放,否則會累積一批「檔案在、線上沒有」的卡,之後被別人的
+rebuild 意外一次推上線。
 
 **C# 版的 group 已於 2026-08-18 補上**(index 摺疊 + card.html 的模式 select),改了三處:
 `Program.cs` 的 `/api/cards` 列表 DTO 補 `group`/`group_label`(原本只回 id/title/description/
