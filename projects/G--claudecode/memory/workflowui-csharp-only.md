@@ -35,4 +35,17 @@ Python 版(8899)只是開發驗證用。
   (`/generate/export`)」「SSE 即時進度(`/jobs/{id}/events`)」,C# 版目前沒有這三項。
   另外 114 個自動測試也只在 Python 那邊,C# 專案沒有任何測試。
 
+**⚠ 2026-08-20 又踩一次(這次是連 port 都搞錯)**:使用者說「用 wan_vace 跑一段影片」,我沒查就
+假設是 Python 版,還自己 `uvicorn --host 127.0.0.1 --port 8899` 另外開了一個 —— 而機器上早就有
+使用者自己的 Python 版常駐在 `0.0.0.0:8899`(pid 從 8/18 活到現在)。兩個一起 bind 8899,
+**127.0.0.1 的精確綁定會優先接走本機請求,等於把使用者原本那個遮掉**,使用者才發現。
+**動手前先 `Get-NetTCPConnection -State Listen` 看 8900/8899 誰在跑,直接用既有的,永遠不要另起一個。**
+
+**C# 版 API 跟 Python 版不一樣的地方(打 8900 時會踩)**:
+- 上傳 `POST /api/uploads` 回傳的是 `{"name": "<uuid>.mp4"}`,**Python 版是 `{"filename": ...}`**。
+- 允許的輸出根目錄是 **`C:\wordpresscb\workflowui-output`**,不是 Python 版的 `G:\claudecode`。
+  `project_path` 給錯會被擋:`scene path escapes the allowed root ...`。
+- 其餘端點同名同形:`/api/cards`、`/api/generate`(body: `card_id`/`project_path`/`scene_folder`/`values`)、
+  `/api/jobs/{id}`。前端在 `http://127.0.0.1:8900/app.js`,看不到原始碼時直接抓這支就知道 API 長相。
+
 相關:[[workflowui-postprocess-cards-0816]] [[workflowui-qwen-music-instantid-0816]] [[workflowui-public-url]] [[workflowui-minimax-h3-cards]]

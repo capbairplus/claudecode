@@ -97,6 +97,28 @@ C# 版的 manifest 系統是 Python 版的移植版,兩邊是分開維護的程�
 - appsettings.json 的 `Storage:AllowedRoot`(預設 `output`,相對於 exe 所在目錄)是 `/api/generate`
   寫入結果的白名單根目錄,跟 Python 版的 `ALLOWED_PROJECT_ROOTS` 是不同機制,兩邊各自獨立設定。
 
+## 輸出路徑:C# 版寫不到 G:\claudecode\output(2026-08-20 實測結論)
+
+**C# 版的輸出根目錄是 `appsettings.json` 的 `Storage:AllowedRoot` = `C:\wordpresscb\workflowui-output`,
+跟 Python 版的 `G:\claudecode\output` 是完全不同的機制**,而且**不能改成 G:**:
+
+- 服務以 **LocalSystem** 執行,**磁碟機代號是 per-user 的**,服務的 session 裡沒有 `G:`。
+  實測用服務自己的 `/api/style-library`(它會以服務身分 `Directory.Exists`)探測:
+  `G:\claudecode` 回 **404「is not a directory」**,但同一路徑在使用者 session 下完全正常。
+- 改用 UNC 也不行:把 `AllowedRoot` 設成 `\\192.168.10.28\g\claudecode\output` 重啟後,health 回
+  **`UnauthorizedAccessException: Access to the path ... is denied`**,自動 fallback 回本機路徑。
+  原因是 LocalSystem 連網路分享時是用**電腦帳號 `CAPBAIR31$`** 認證(這台機器是 CAPBAIR31 /
+  192.168.3.31,`G:` 對應 `\\192.168.10.28\g` 是另一台機器的分享),那邊沒開權限給它。
+- 要真的改成共用位置,只有兩條路:(a) 在 192.168.10.28 上把分享/NTFS 權限開給 `CAPBAIR31$`;
+  (b) 用 `sc config obj=` 把服務改成以使用者帳號執行(要密碼 + 提權)。**兩者都還沒做。**
+- **程式有安全網**:建目錄失敗會自動退回 `FallbackRoot` 並在 `/api/health` 的 `storage_warning` 報出來,
+  服務不會掛。但注意 fallback 只在「建目錄失敗」時觸發,「讀得到但寫不進去」要等實際生成才會爆。
+
+**連帶影響**:`political_cartoon_flux` 的 `categories_source` 指向 `G:\claudecode\政治漫畫\styles`,
+**服務讀不到,所以公開網址上那張卡的風格選單是空的**(`/api/cards/political_cartoon_flux` 的
+`categories` = 0 筆)。Python 版正常因為它以使用者身分跑。要修得把該 manifest 的路徑改成 UNC,
+但前提是上面的權限問題先解決。
+
 ## 進度
 
 `pose_controlnet_flux`(角色 LoRA 姿勢批次生成卡,見 [[workflowui-pose-controlnet-card]])
