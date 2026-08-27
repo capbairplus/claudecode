@@ -6,7 +6,7 @@ metadata:
 ---
 
 WorkflowUI 的 manifest 規定**每個欄位都必須對到某個 `node_id` + `input_key`**,所以「要不要跑某一段」
-沒辦法直接用一個開關表達。2026-08-20 做 `wan_vace` v2(Florence-2 自動 prompt + RIFE 補幀)時
+沒辦法直接用一個開關表達。2026-08-27 做 `wan_vace` v2(Florence-2 自動 prompt + RIFE 補幀)時
 實證出兩個可重複使用的手法:
 
 **手法 1:`ImpactConditionalBranch` 當開關(可選的「整段子流程」)**

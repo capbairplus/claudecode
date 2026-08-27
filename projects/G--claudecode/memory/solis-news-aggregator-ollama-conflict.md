@@ -59,3 +59,42 @@ vault 筆記:`D:\capbairvault\new soliswebsite\Solis News Aggregator.md`(已在�
 「關聯筆記」段落說明這個衝突,並回連 WorkflowUI 那篇)。
 
 相關:[[comfy-161-shared-machine-gpu]] [[workflowui-ltx23-card]] [[workflowui-public-url]]
+
+---
+
+## ⚠ 重大更正(2026-08-18):真正天天佔住 GPU 的是「另一個」NewsRadar
+
+上面修的 `Solis News Aggregator` 是 **192.168.1.7 上的 WordPress 外掛**,那個修得沒錯,但**它不是
+元凶**。查 `.161` 上 11434 埠的 established 連線,來源是 **`192.168.3.31`(= capbair 本機)且有 4 條
+並發**,追回本機程序是:
+
+```
+G:\claudecode\政治漫畫\news_radar\NewsRadar.Fetcher\bin\Release\net8.0\NewsRadar.Fetcher.dll
+```
+
+**同名不同物**:那是政治漫畫專案的新聞雷達(`/newsradar/` 反代的 5299 就是它的 Web)。裡面有兩個
+服務打同一個 `192.168.1.161:11434` 的 `qwen3:8b`,都沒帶 `keep_alive`:
+
+- `NewsRadar.Core/Services/OllamaAnalyzer.cs` — `AnalyzeAllAsync(concurrency: 3)` 批次分析(那 4 條
+  並發連線就是它);呼叫端 `NewsRadar.Fetcher/Program.cs:53`
+- `NewsRadar.Core/Services/CartoonIdeator.cs` — `GenerateOptionsAsync` 單次;呼叫端
+  `NewsRadar.Web/Pages/CartoonStudio.cshtml.cs:47`
+
+**已修好並 build(2026-08-18)**,依使用型態分開處理:
+- Analyzer(批次)→ 加 `ReleaseAsync()`,`Task.WhenAll` 包 `try/finally`,**批次結束釋放一次**。
+  刻意不逐篇帶 `keep_alive=0`——上千篇的批次逐篇釋放會讓每篇都重載 6GB,整批更慢。
+- Ideator(互動式)→ 直接在 request 帶 `keep_alive = 0`。
+
+**啟動方式**(排查時要知道):排程工作 **`NewsRadar-DailyFetch`**(capbair/Interactive)→
+`wscript run_daily.vbs` → `WshShell.Run(..., 0, True)` 隱藏視窗 → `run_daily.bat` →
+`dotnet NewsRadar.Fetcher.dll`,輸出重導到 `logs\fetch.log`(**有緩衝,log 會落後很多,別拿它判斷
+進度**)。另有 `NewsRadar-WebDashboard` → `run_web.vbs` → 5299 網站,兩者都吃環境變數
+`%NEWSRADAR_DIR%`。
+
+**一輪批次要跑好幾個小時**(實測 1008 篇,從晚上 10 點跑到凌晨還沒完),期間 6GB 顯存幾乎不放——
+這就是 ComfyUI「白天好好的、晚上突然慢 33 倍」的來源。
+
+⚠ **Git Bash 陷阱**:`schtasks /End /TN xxx` 在 Git Bash 裡會被 MSYS 路徑轉換成
+`C:/Program Files/Git/End` 而失敗,要透過 `powershell -Command "schtasks.exe /End ..."` 呼叫。
+
+相關:[[comfy-161-shared-machine-gpu]] [[workflowui-ltx23-card]]
