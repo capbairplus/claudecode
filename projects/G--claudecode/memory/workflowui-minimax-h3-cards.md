@@ -22,6 +22,68 @@ t2v 卡)。C# 的 manifest 模型完全吃得下這幾張卡:`category` 是純�
 `group`/`group_label` 在 `/api/cards/{id}` detail 端點回傳(list 端點對所有卡都不回傳 group,正常)。
 另外 `ltx23_t2v` / `ltx23_t2v_hq` **到現在還是只有 Python 版有**,C# 版沒移植。詳見 [[workflowui-public-url]]。
 
+**2026-09-03 補上 `minimax_h3_v2v`(參考影片生影片)**——先前四張卡全部只接 `ref_images`,
+`MiniMaxH3ReferenceToVideo` 還有三組輸入沒人用:`ref_videos`(最多 3,IMAGE 幀批次)、
+`ref_video_audios`、`ref_audios`。v2v 就是把 `VHS_LoadVideo`(`force_rate=24` 對齊模型)的 IMAGE 輸出
+接到 `ref_videos.ref_video_0`,prompt 裡用 `<Video 1>` 指涉,其餘沿用已驗證的 r2v graph
+(ref2va 模型 + ref2v turbo LoRA,零額外下載)。**實測效果正確:身份/外觀來自參考影片、動作來自
+prompt**(拿貓在窗台的影片當參考,prompt 要牠跳到地板,輸出就是同一隻三花貓跳下窗台)。
+
+**參考影片的成本(864×480 輸出、4 步、熱快取)**:參考 48 幀 **255 秒**、120 幀 **315 秒**,
+**每多 1 幀約 +0.83 秒**(對照:同 graph 用 2 張參考圖是 150 秒)。所以卡片把 `frame_load_cap`
+開成欄位、預設 48(2 秒),照斜率推估 360 幀(15 秒)約 8–9 分鐘。
+**音訊也接了(2026-09-03 同日補),但踩了兩個雷才成立**:
+
+1. **`VHS_LoadVideo` 的 audio 輸出一接上,遇到無音軌影片就整個炸**
+   (`VHS failed to extract audio from ...`)——它是被連線才去抽音軌,抽不到就丟例外。
+   有音軌 195 秒成功、無音軌直接 error,實測確認。
+2. **想用 `PrimitiveString` 當中介把同一個檔名餵給兩個載入節點,會在驗證階段就被擋**:
+   `'NoneType' object has no attribute 'endswith'`。**影片/檔案這種 COMBO 輸入不能吃連線**,
+   必須是字面字串——跟 LTX 卡那個 `PrimitiveInt` 餵 INT 的手法不一樣,別以為 Primitive 中介萬用。
+
+**最後解法:整條改走核心節點**,檔名就只出現在一個節點上,欄位綁得住:
+`LoadVideo(file) → GetVideoComponents → images → ImageFromBatch(batch_index=跳過, length=幀數上限)
+→ ref_videos.ref_video_0`,音訊 `GetVideoComponents.audio → ref_video_audios.ref_video_audio_0`。
+**核心 `GetVideoComponents` 對無音軌影片是回傳 `audio=None` 而不是丟例外,而 H3 節點吃得下 None**
+——所以有聲/無聲的參考片都能跑(實測 225 秒 / 210 秒,兩者輸出都帶 AAC 音軌)。
+
+**代價**:核心節點沒有 VHS 的 `force_rate`,**不會自動轉幀率**,所以參考片最好本身就是 24fps
+(模型預期 24fps 參考幀);`ImageFromBatch` 取代了 `frame_load_cap`/`skip_first_frames`。
+
+**多支參考影片 + 獨立參考音訊(2026-09-03 再擴充)**:v2v 現在是 1~3 支參考影片 + 最多 3 段獨立音訊。
+
+**關鍵是後端早就有剪枝機制了,別自己造輪子**——別的 session 做 `minimax_h3_r2v_multi` 時已經在
+C# 的 `Services/WorkflowEngine.cs` 加了:
+- manifest 欄位的 `prune_when_empty: true` → 欄位留空就把它綁的節點從 graph 剪掉,
+  並清掉其他節點指向它的斷鏈(`PruneNodes`)
+- `CompactAutogrowKeys()` → 剪完把 `ref_images.ref_image_N` 這類 autogrow 編號重排成 0..n-1,
+  否則中間留洞會讓節點從 0 走到洞就停,後面的槽悄悄消失
+
+**但剪枝只剪「欄位綁的那一個節點」,不會連鎖剪下游**。我的主影片槽是 3 個節點的鏈
+(`LoadVideo → GetVideoComponents → ImageFromBatch`),剪掉第一個會讓後面變成缺必要輸入。
+解法是**額外的影片槽改用單節點的 `VHS_LoadVideo`(只接幀、不接音訊)**——先前那個「無音軌影片會炸」
+只在音訊輸出被接上時發生,**只取幀時無音軌影片實測可以過**。獨立音訊槽用 `LoadAudio`(也是單節點)。
+代價:第 2、3 支影片固定取前 48 幀、不吃它們的音軌,只有第 1 支的音軌會當條件。
+
+**實測(864×480 / 5 秒 / 4 步)**:
+| 情況 | 耗時 | 結果 |
+|---|---|---|
+| 只有影片 1(5 個選填槽全空) | 330 秒(含冷載入) | ✅ `_meta` 確認節點 30/31/32/33/34 全被剪掉、沒有斷鏈 |
+| 影片 1 + 影片 2(96 幀參考) | 405 秒 | ✅ **兩支參考確實被組合**:`<Video 1>` 的貓走在 `<Video 2>` 的海灘上 |
+| 影片 1 + 獨立音訊 1(`LoadAudio` → `ref_audios.ref_audio_0`) | 240 秒 | ✅ `_meta` 確認只留節點 32、30/31/33/34 被剪 |
+
+**⚠ 這三個測試被打斷了三次,但不是我的 graph 有問題**:當天 ComfyUI 四度中斷,查證後確認
+**不是當機**——Windows 事件記錄沒有任何 python 的 Application Error/WER(只有前一天一筆記憶體洩漏
+診斷)、記憶體剩 35GB/63.8GB、排程工作 `comfyui` 的 LastRunTime 停在早上 08:58 沒再執行過,
+但進程每次都自己回來。最像的解釋是 **ComfyUI Manager 的內建自我重啟**(裝/更新 custom node 會觸發),
+而 `custom_nodes\TTS-Audio-Suite` 當天 09:02 才被動過,顯示有別的 session 在弄音訊節點。
+**排查「ComfyUI 又掛了」時,先分清楚「當機」還是「被重啟」:看 Windows 事件記錄有沒有 WER、
+排程工作 LastRunTime 有沒有更新、以及 custom_nodes 有沒有剛被動過。**
+
+**⚠ `group_order` 要先查別人用了什麼**:我一開始給 v2v 填 5,結果撞到別的 session 做的
+`minimax_h3_r2v_multi`(也是 5),改成 6。這組現在是 t2v(1)→ i2v(2)→ flf2v(3)→ r2v(4)→
+r2v_multi(5)→ v2v(6)。
+
 **為什麼比 LTX 那次省事**:ComfyUI 0.33.1 已內建 `comfy_extras.nodes_minimax_h3`(`MiniMaxH3ImageToVideo`、
 `MiniMaxH3ReferenceToVideo`、`EmptyMiniMaxH3LatentAV`、`ModelSamplingMiniMaxH3`),**不用裝任何 custom node**,
 官方 template 也在:`video_minimax_h3_{t2v,i2v,r2v}.json`(本地權重)+ `api_minimax_h3_*`(雲端 API 版)。

@@ -38,3 +38,4 @@
 - [MiniMax H3 四張影片卡](workflowui-minimax-h3-cards.md) — t2v/i2v/flf2v/r2v;ComfyUI 0.33.1 內建節點零安裝;4 步 turbo LoRA 110 秒出 5 秒有聲影片;autogrow 輸入寫成 ref_images.ref_image_0;沒有選填媒體欄位機制
 - [ComfyUI Cards 只做 C# 版](workflowui-csharp-only.md) — 2026-08-18 起不再同步寫 Python 版;卡片是純 JSON 丟進 C# 的 workflow_templates 就生效,只有改 .cs 才要提權重建
 - [卡片內做可選階段的兩個手法](card-optional-stage-pattern.md) — ImpactConditionalBranch 的 lazy input 真的不跑上游;RIFE multiplier=1 等於原樣輸出;補幀要連動 FPS 否則片長被拉長
+- [WorkflowUI 只做 C# 版](workflowui-csharp-is-the-real-one.md) — 新卡片一律建在 C:\wordpresscb\workflowui-csharp-poc;Python 版已停止同步;帶新 FieldType 的 manifest 未 build 先放 bin 會讓 /api/cards 全掛
