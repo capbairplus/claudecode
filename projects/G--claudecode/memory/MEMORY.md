@@ -39,3 +39,5 @@
 - [ComfyUI Cards 只做 C# 版](workflowui-csharp-only.md) — 2026-08-18 起不再同步寫 Python 版;卡片是純 JSON 丟進 C# 的 workflow_templates 就生效,只有改 .cs 才要提權重建
 - [卡片內做可選階段的兩個手法](card-optional-stage-pattern.md) — ImpactConditionalBranch 的 lazy input 真的不跑上游;RIFE multiplier=1 等於原樣輸出;補幀要連動 FPS 否則片長被拉長
 - [WorkflowUI 只做 C# 版](workflowui-csharp-is-the-real-one.md) — 新卡片一律建在 C:\wordpresscb\workflowui-csharp-poc;Python 版已停止同步;帶新 FieldType 的 manifest 未 build 先放 bin 會讓 /api/cards 全掛
+- [音樂生成卡 minimax_music3](workflowui-minimax-music3-card.md) — MiniMax Music 3 內建節點零安裝;seed 要用 SeedNode 同時餵 TextEncode 與 KSampler 否則換 seed 不換曲;max_duration 只是上限;_meta 欄位空值=接了線
+- [往 .161 放模型檔要 SSH 就地下載](comfy-161-model-download-path.md) — SSH+curl.exe 20MB/s vs SMB 複製 5.5MB/s vs 直寫網路磁碟 370KB/s;裸連 ssh 可用不必管讀不到的金鑰;⚠ 別用 Invoke-WebRequest 測速(慢十倍會誤導結論)
