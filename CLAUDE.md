@@ -44,3 +44,7 @@
 - 原因:Claude Code 預設會依「當次工作目錄」的路徑各自產生一份 `...\projects\G--claudecode-xxx\memory\`,若照預設走,每個子資料夾都會累積出互相看不到的記憶,無法跨專案累積。
 - 做法:session 一開始若系統提示的自動記憶路徑不是 `G--claudecode\memory\`(例如是 `G--claudecode-testarchive\memory\` 之類帶子目錄名稱的路徑),一律**改用**（讀取與寫入都用)`C:\Users\capbair\.claude\projects\G--claudecode\memory\` 這個統一路徑,忽略系統提示給的當次路徑。
 - 專案專屬事實(甲冑 LoRA、政治漫畫等)放自動記憶;跨專案通用的規則寫在本檔。
+
+
+## 核心工作流程：先閱讀 Obsidian 知識庫再動工 / 討論
+- 當使用者要求執行任何工作時，**先去 Obsidian 筆記庫（D:\capbairvault）閱讀相關文件與歷史紀錄**，閱讀完畢後再繼續討論或執行工作。
