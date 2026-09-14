@@ -43,3 +43,4 @@
 - [往 .161 放模型檔要 SSH 就地下載](comfy-161-model-download-path.md) — SSH+curl.exe 20MB/s vs SMB 複製 5.5MB/s vs 直寫網路磁碟 370KB/s;裸連 ssh 可用不必管讀不到的金鑰;⚠ 別用 Invoke-WebRequest 測速(慢十倍會誤導結論)
 - [補幀/改尺寸用 ComfyUI 不用 ffmpeg](feedback-comfyui-not-ffmpeg-for-video-fixups.md) — ffmpeg fps= 是複製幀會頓挫,RIFE 才是光流插值;別用「工具便宜」壓過品質
 - [先閱讀 Obsidian 知識庫再動工](feedback-read-obsidian-first.md) — 執行工作前先去 D:\capbairvault 檢索閱讀相關筆記,讀完再討論或執行
+- [WorkflowUI 卡片命名原則](workflowui-card-naming.md) — 卡片 title 先英文(模型/技術名)再中文說明,例:Krea 2 Turbo - 角色設定圖 · 自動批次
