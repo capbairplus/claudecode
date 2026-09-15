@@ -44,3 +44,5 @@
 - [補幀/改尺寸用 ComfyUI 不用 ffmpeg](feedback-comfyui-not-ffmpeg-for-video-fixups.md) — ffmpeg fps= 是複製幀會頓挫,RIFE 才是光流插值;別用「工具便宜」壓過品質
 - [先閱讀 Obsidian 知識庫再動工](feedback-read-obsidian-first.md) — 執行工作前先去 D:\capbairvault 檢索閱讀相關筆記,讀完再討論或執行
 - [WorkflowUI 卡片命名原則](workflowui-card-naming.md) — 卡片 title 先英文(模型/技術名)再中文說明,例:Krea 2 Turbo - 角色設定圖 · 自動批次
+- [Bella Barnett 參考圖庫](bellabarnett-reference-library.md) — 14,225 張商品圖,G: 與 007 各一份
+- [fashion_model_bb_flux 卡](fashion-model-bb-flux-card.md) — 服裝語彙要寫「裝飾長在哪裡」,搭 tryon_qwen 做精準換裝
