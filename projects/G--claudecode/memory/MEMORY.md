@@ -46,3 +46,4 @@
 - [WorkflowUI 卡片命名原則](workflowui-card-naming.md) — 卡片 title 先英文(模型/技術名)再中文說明,例:Krea 2 Turbo - 角色設定圖 · 自動批次
 - [Bella Barnett 參考圖庫](bellabarnett-reference-library.md) — 14,225 張商品圖,G: 與 007 各一份
 - [fashion_model_bb_flux 卡](fashion-model-bb-flux-card.md) — 服裝語彙要寫「裝飾長在哪裡」,搭 tryon_qwen 做精準換裝
+- [UtilHub 部署規則](utilhub-deploy-canonical-repo.md) — 只從 C:\wordpresscb\utilhub 用 deploy.ps1 部署,G:\agy\util 不可部署
