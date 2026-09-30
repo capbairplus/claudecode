@@ -1,0 +1,2 @@
+- [Subagent plan-mode lock](feedback_subagent_planmode.md) — dispatched subagents can get stuck planning with no ExitPlanMode; coordinator should read their plan file and execute it directly.
+- [comfyuicard mobile redesign status](project_comfyuicard_mobile_redesign.md) — what's done/deferred as of 2026-09-30, pano-viewer.html's fragile embed marker, song-lipsync.html's pre-existing JS error.
