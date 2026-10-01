@@ -42,4 +42,7 @@ key)之後如果要做「圖生影片」「lip sync」之類的卡片,可以直�
 (送出會拿到 node type not found),要能用得先去 .161 安裝 ComfyUI-ReActor。不能只看 manifest 寫
 `status: ready` 就假設能跑。
 
+**2026-10-01 已解決(沒裝 ReActor,改用 mtb)**:兩張卡改用 .161 現有的 `Face Swap (mtb)`
+(同一顆 inswapper_128),卡片 id 不變。見 [[mtb-faceswap-batch-pitfall]]。
+
 相關:[[workflowui-vision]] [[comfy-161-network-access]]

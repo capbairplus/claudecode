@@ -47,3 +47,7 @@
 - [Bella Barnett 參考圖庫](bellabarnett-reference-library.md) — 14,225 張商品圖,G: 與 007 各一份
 - [fashion_model_bb_flux 卡](fashion-model-bb-flux-card.md) — 服裝語彙要寫「裝飾長在哪裡」,搭 tryon_qwen 做精準換裝
 - [UtilHub 部署規則](utilhub-deploy-canonical-repo.md) — 只從 C:\wordpresscb\utilhub 用 deploy.ps1 部署,G:\agy\util 不可部署
+- [UtilHub 評估與修補 1001](utilhub-eval-20261001.md) — radio 免登入/SSRF 已修、sys-status/Obsidian 存檔/雜誌搜尋已上線(main@170bf97);逐字稿因無中文 ASR 模型未做
+- [WorkflowUI 10/01 平台與新卡](workflowui-1001-platform-and-cards.md) — 15 區分類、成果接力、參數回填(待重建)、SeedVR2/SAM3/MSR 新卡;本機測試實例的做法與坑
+- [mtb 換臉的 batch 陷阱](mtb-faceswap-batch-pitfall.md) — 多幀要拆 list 逐幀跑、preserve_alpha 會讓影片全黑;取代沒安裝的 ReActor
+- [output2 檔案 45 秒就消失](comfy-output2-vanishing-files.md) — NAS 輸出被不明程序搬走,/view 偶發 404 的根因
