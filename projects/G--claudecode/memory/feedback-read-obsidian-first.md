@@ -8,3 +8,5 @@ type: feedback
 
 當使用者要求執行任何工作時，必須先去 Obsidian (D:\capbairvault) 檢索並閱讀相關筆記。
 閱讀完成後，基於過去的設計決策、架構與踩坑紀錄，再跟使用者進行深入討論或展開操作。
+
+MCP 連不上時直接用檔案系統讀,見 [[obsidian-vault-is-plain-files]]。
