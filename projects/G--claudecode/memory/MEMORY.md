@@ -5,7 +5,7 @@
 - [先查資料再回答](feedback_verify_before_answering.md) — 不確定軟體UI/功能細節時要先搜尋驗證,別憑印象亂猜(3ds Max ActiveShade不支援VRay的教訓)
 - [工作區慣例 G:\claudecode](workspace-convention-gclaudecode.md) — 每專案一資料夾,命名 topic_YYYY-MM-DD (ASCII kebab),與 ComfyUI 同槽
 - [漂流者 LoRA 專案](drifter-lora-project.md) — 6 角色人物 LoRA;周以諾 Flux v2 完成(成品 v2ep4),其餘 5 角待做
-- [檔案連結給純路徑](feedback-file-links-plain-path.md) — 給檔案位置用純 Windows 路徑,別自動開檔;工作目錄落差致連結點不開,可用 .161 ComfyUI 當圖床給 HTTP 連結
+- [提到檔案就附完整路徑](feedback-file-links-plain-path.md) — 任何生成/修改的檔案,同則訊息就附完整絕對路徑(可點連結+純路徑),別只寫檔名;可請求加資料夾讓連結可點,也可直接開 explorer
 - [每張圖存 workflow](feedback-save-workflow-per-image.md) — 生圖時每張都把 ComfyUI 提示詞+workflow JSON 存進 G: 專案 _meta 子夾
 - [只做被交代的事](feedback-only-do-what-asked.md) — 不自作主張加額外測試/抓圖/生成,精準照指令走
 - [批次生圖流程](feedback-batch-gen-workflow.md) — 一次派遣→單一長等收圖(別多段輪詢)→只在岔路才問,別頻繁跳授權
