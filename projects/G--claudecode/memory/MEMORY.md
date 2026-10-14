@@ -54,3 +54,4 @@
 - [output2 檔案 45 秒就消失](comfy-output2-vanishing-files.md) — NAS 輸出被不明程序搬走,/view 偶發 404 的根因
 - [ASR 逐字稿試驗 1001](asr-pilot-161-20261001.md) — .161 裝了 faster-whisper/Qwen3-ASR/SenseVoice 試驗;位置與實測;缺人工標準答案未定案
 - [憑證過期網站打不開 1002](apache-letsencrypt-renewal-failure-1002.md) — win-acme webroot 對不上 + WordPress .htaccess 重寫造成 403;續期後 Apache 不會自動重載
+- [161 斷線喚醒程序](comfy-161-wakeup-procedure.md) — ssh 007 → d: → wakeup161;僅 18:20~07:30 可用,早上 8:30 關機後別去開
