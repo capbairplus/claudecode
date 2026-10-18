@@ -1,4 +1,5 @@
 {
   "env": {},
-  "agentPushNotifEnabled": true
+  "agentPushNotifEnabled": true,
+  "switchModelsOnFlag": true
 }
