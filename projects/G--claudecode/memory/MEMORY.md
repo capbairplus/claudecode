@@ -56,4 +56,5 @@
 - [憑證過期網站打不開 1002](apache-letsencrypt-renewal-failure-1002.md) — win-acme webroot 對不上 + WordPress .htaccess 重寫造成 403;續期後 Apache 不會自動重載
 - [161 斷線喚醒程序](comfy-161-wakeup-procedure.md) — ssh 007 → d: → wakeup161;僅 18:20~07:30 可用,早上 8:30 關機後別去開
 - [AiwenPaint = Pinta 衍生專案](aiwenpaint-pinta-based.md) — d:\myproject\AiwenPaint;已做功能清單、package.ps1 打包成自包含 exe、DOTNET_ROOT/PATH/Bash find 的坑;舊 WPF 版在 AiwenPaintLite
+- [教材逐課審閱:只給建議不改檔](feedback-lesson-review-suggest-first.md) — FirstStepsInJapan 台灣版,輸入 "lesson N" 即審第 N 課,先建議、等同意才改
 - [AiwenPDF 授權暫緩但要提醒](aiwenpdf-license-deferred.md) — 使用者說先別管授權;對外開放/外賣/散布前必須主動提醒並走授權筆記清單
