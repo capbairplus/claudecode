@@ -26,6 +26,7 @@ import { spawnSync } from "node:child_process";
 import { existsSync, readFileSync, rmSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
 import { fileURLToPath } from "node:url";
+import { hostAudio, keepHostAudio } from "./lib/host-audio.mjs";
 import { parseStoryboard } from "./lib/storyboard.mjs";
 
 const HERE = dirname(fileURLToPath(import.meta.url));
@@ -105,14 +106,20 @@ function toProductLaunchMeta(neutral) {
         duration_s: neutral.bgm.duration_s ?? null,
       }
     : null;
+  // bgm_pending must survive the neutral → skill translation. A detached generate
+  // (Lyria/MusicGen) leaves `bgm: null, bgm_pending: true` until the track lands; dropping the
+  // flag makes "not ready yet" indistinguishable from "silent by design", so a later
+  // `fetch-sfx` snapshot turns a still-generating bed into no music at all with no signal.
+  const bgmPending = !!neutral.bgm_pending;
   const sfx = (neutral.sfx ?? []).map((s) => ({
     frame: Number(s.id),
     file: s.file,
     offset_s: s.offset_s ?? 0,
     duration_s: s.duration_s ?? 1,
     volume: s.volume ?? 0.35,
+    ...(s.license && { license: s.license, credit: s.credit }),
   }));
-  return { bgm, voices, sfx };
+  return { bgm, bgm_pending: bgmPending, voices, sfx };
 }
 
 // ── generate (TTS + BGM) ────────────────────────────────────────────────────
@@ -126,7 +133,6 @@ function runGenerate(argv) {
   const scriptPath = resolve(flag(argv, "script", join(hyperframesDir, "SCRIPT.md")));
   const outPath = resolve(flag(argv, "out", join(hyperframesDir, "audio_meta.json")));
   const userVoice = flag(argv, "voice", null);
-  const speed = Number(flag(argv, "speed", "1.0")) || 1.0;
 
   if (!existsSync(storyboardPath)) die(`STORYBOARD.md not found at ${storyboardPath}`);
   const manifest = parseStoryboard(readFileSync(storyboardPath, "utf8"));
@@ -146,6 +152,28 @@ function runGenerate(argv) {
     String(g.extra?.music ?? "")
       .trim()
       .toLowerCase() === "none";
+  const host = previousHostAudio(outPath, hyperframesDir, die, false);
+  const scored = sfxCueLines(manifest).length || host.bgm || host.sfx.length;
+  if (bgmOff && !lines.length && scored) {
+    // No narration and no looked-up music: the host's entries and any sounds fetch-sfx already found; a stale
+    // voice or bed in the engine's sidecar goes.
+    const neutral = neutralPath(outPath);
+    let looked = [];
+    try {
+      looked = JSON.parse(readFileSync(neutral, "utf8")).sfx ?? [];
+    } catch (err) {
+      if (err.code !== "ENOENT") die(`${neutral} does not parse: ${err.message}`);
+    }
+    const kept = { voices: [], bgm: null, bgm_pending: false, sfx: looked };
+    writeFileSync(neutral, JSON.stringify(kept));
+    const meta = keepHostAudio(
+      toProductLaunchMeta(kept),
+      previousHostAudio(outPath, hyperframesDir, die),
+    );
+    writeFileSync(outPath, JSON.stringify(meta, null, 2));
+    console.log(`✓ audio generate: no narration or music to make → ${outPath}`);
+    return;
+  }
   if (bgmOff && !lines.length) {
     rmSync(outPath, { force: true });
     rmSync(neutralPath(outPath), { force: true });
@@ -161,22 +189,57 @@ function runGenerate(argv) {
   const query = (g.extra && g.extra.music) || g.message || g.arc || "calm cinematic underscore";
   const request = {
     provider: "auto",
-    speed,
+    speed: flag(argv, "speed", "1.0"),
     lines,
     bgm: bgmOff
       ? { mode: "none" }
       : { mode: "retrieve", query, blob: g.message || "", arc: g.arc || "" },
   };
   if (userVoice) request.voice = userVoice;
+  if (flag(argv, "tts-model", null)) request.tts_model = flag(argv, "tts-model", null);
+  if (flag(argv, "style", null)) request.style = flag(argv, "style", null);
 
   const neutral = neutralPath(outPath);
   runEngine({ request, hyperframesDir, neutral, only: "tts,bgm" }, die);
 
-  const meta = toProductLaunchMeta(JSON.parse(readFileSync(neutral, "utf8")));
+  const rebuilt = toProductLaunchMeta(JSON.parse(readFileSync(neutral, "utf8")));
+  const meta = keepHostAudio(rebuilt, previousHostAudio(outPath, hyperframesDir, die));
   writeFileSync(outPath, JSON.stringify(meta, null, 2));
   console.log(
     `✓ audio generate: ${meta.voices.length} voice + ${meta.bgm ? "1 bgm" : "no bgm"} → ${outPath}`,
   );
+}
+
+// Per-frame `sfx:` cues (comma-separated) → engine lines carrying only sfx.
+// `filter(Boolean)` alone is not enough: a storyboard that spells "no SFX here" as
+// `sfx: none` reaches the engine as a cue literally NAMED "none", which then fails to
+// resolve. The absence sentinels are part of the storyboard vocabulary, so drop them.
+const SFX_NONE = new Set(["none", "no", "n/a", "na", "skip", "-", "—", "–"]);
+function sfxCueLines(manifest) {
+  const lines = [];
+  for (const f of manifest.frames) {
+    const names = (f.extra?.sfx ?? "")
+      .split(",")
+      .map((s) => s.trim())
+      .filter((s) => s && !SFX_NONE.has(s.toLowerCase()));
+    if (names.length && f.number != null) lines.push({ id: pad2(f.number), sfx: names });
+  }
+  return lines;
+}
+
+// The host's own entries in audio_meta.json now (lib/host-audio.mjs). A pass reads them again for its final
+// write, since the host may add audio while the engine runs. Only a missing file means none: one that does not
+// parse stops the pass.
+function previousHostAudio(outPath, hyperframesDir, die, warn = true) {
+  let previous = null;
+  try {
+    previous = JSON.parse(readFileSync(outPath, "utf8"));
+  } catch (err) {
+    if (err.code !== "ENOENT") die(`${outPath} does not parse: ${err.message}`);
+  }
+  const host = hostAudio(previous, (path) => existsSync(join(hyperframesDir, path)));
+  if (warn) for (const why of host.dropped) console.warn(`⚠ audio: host audio dropped: ${why}`);
+  return host;
 }
 
 // ── fetch-sfx ────────────────────────────────────────────────────────────────
@@ -192,15 +255,8 @@ function runFetchSfx(argv) {
   if (!existsSync(storyboardPath)) die(`STORYBOARD.md not found at ${storyboardPath}`);
   const manifest = parseStoryboard(readFileSync(storyboardPath, "utf8"));
 
-  // Per-frame `sfx:` cues (comma-separated) → engine lines carrying only sfx.
-  const lines = [];
-  for (const f of manifest.frames) {
-    const names = (f.extra?.sfx ?? "")
-      .split(",")
-      .map((s) => s.trim())
-      .filter(Boolean);
-    if (names.length && f.number != null) lines.push({ id: pad2(f.number), sfx: names });
-  }
+  const host = previousHostAudio(outPath, hyperframesDir, die, false);
+  const lines = sfxCueLines(manifest).filter((line) => !host.frames.has(Number(line.id)));
 
   const neutral = neutralPath(outPath);
   const request = { lines, bgm: { mode: "none" } };
@@ -209,9 +265,19 @@ function runFetchSfx(argv) {
   // voices/bgm written by the earlier generate (--only tts,bgm) pass are preserved.
   runEngine({ request, hyperframesDir, neutral, only: "sfx" }, die);
 
-  const meta = toProductLaunchMeta(JSON.parse(readFileSync(neutral, "utf8")));
+  const rebuilt = toProductLaunchMeta(JSON.parse(readFileSync(neutral, "utf8")));
+  const meta = keepHostAudio(rebuilt, previousHostAudio(outPath, hyperframesDir, die));
   writeFileSync(outPath, JSON.stringify(meta, null, 2));
   console.log(`✓ audio fetch-sfx: ${meta.sfx.length} SFX cue(s) → ${outPath}`);
+  // This pass rewrites audio_meta.json from the neutral sidecar. If a detached BGM generate is
+  // still running, the bed it eventually writes is NOT folded back in — the snapshot we just
+  // took has no music. Say so instead of leaving a silent film behind.
+  if (meta.bgm_pending && !meta.bgm) {
+    console.warn(
+      "⚠ audio fetch-sfx: a detached BGM generate is still pending, so this snapshot has no bed. " +
+        "Re-run `fetch-sfx` (or re-point audio_meta.json at the track) once it lands, before assembling.",
+    );
+  }
 }
 
 // ── sync-durations (local; rewrites STORYBOARD.md) ────────────────────────────

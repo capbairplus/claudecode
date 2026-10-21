@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { stageCapturedFonts } from "./lib/captured-fonts.mjs";
 // captions.mjs — build the captions sub-composition from STORYBOARD + audio_meta.
 //
 // One mode: `build`. Reads STORYBOARD.md (frame order + durations → cumulative
@@ -34,10 +35,10 @@
 
 import { existsSync, mkdirSync, readdirSync, readFileSync, writeFileSync } from "node:fs";
 import { dirname, join, resolve } from "node:path";
-import { fileURLToPath } from "node:url";
 import { parseStoryboard } from "./lib/storyboard.mjs";
 import { captionBand, parseFormat } from "./lib/dimensions.mjs";
 import { parseColors, parseFonts, semanticColors } from "./lib/tokens.mjs";
+import { isMainModule } from "./lib/main-module.mjs";
 
 const flag = (argv, name, def) => {
   const i = argv.indexOf(`--${name}`);
@@ -263,7 +264,7 @@ function buildFromSkin(skin, groups, total, W, H, tokens, die, faces = "", fonts
   out = fillOnce(
     out,
     /var GROUPS = \[\];/,
-    `var GROUPS = ${JSON.stringify(groups)};`,
+    `var GROUPS = ${JSON.stringify(groups).replace(/</g, "\\u003c")};`,
     "`var GROUPS = [];` hole",
   );
   out = fillOnce(out, /var DURATION = 0;/, `var DURATION = ${total};`, "`var DURATION = 0;` hole");
@@ -302,6 +303,17 @@ function brandFontFaces(framePath, hyperframesDir) {
   ].filter((d) => existsSync(d.abs));
   const weightOf = (n) => {
     const s = n.toLowerCase();
+    // A numeric axis is the font's own answer, so it beats the word heuristic. Fontsource
+    // names every face this way ("inter-latin-500-normal.woff2") and carries no weight
+    // WORD at all, so word-only parsing collapsed a whole family onto 400 and shipped
+    // exactly one of its faces.
+    //
+    // A weight token must not be buried inside a longer run: capture/assets/fonts holds
+    // hash-named files, and "Newsreader-a1b200c3.woff2" is not a 200-weight face. Hence a
+    // non-digit before (which also stops "2100" reading as 100) and no alphanumeric after.
+    // "Roboto900.ttf" still parses — requiring separators on both sides would have lost it.
+    const numeric = /(?:^|[^0-9])([1-9]00)(?![0-9a-z])/.exec(s);
+    if (numeric) return Number(numeric[1]);
     if (/black|heavy|ultra|extrabold/.test(s)) return 800;
     if (/semibold|demibold/.test(s)) return 600; // before /bold/ — "demibold" contains "bold"
     if (/bold/.test(s)) return 700;
@@ -309,6 +321,14 @@ function brandFontFaces(framePath, hyperframesDir) {
     if (/light|thin/.test(s)) return 300;
     return 400; // book / regular / roman
   };
+  // Weight is not the only axis in a filename. Google Fonts ships Newsreader as
+  // "Newsreader-Italic-VariableFont_opsz,wght.ttf" + "Newsreader-VariableFont_opsz,wght.ttf",
+  // and the italic sorts first — so without a style axis the italic file claimed the
+  // family's ONLY 400 slot, the upright file was dropped as a duplicate, and the face
+  // was declared with no `font-style`. @font-face is deliberately global (the composition
+  // CSS scoper exempts it, and it has to be), so the whole document then rendered that
+  // family in italics — captions italicizing every sibling composition.
+  const styleOf = (n) => (/italic|oblique/i.test(n) ? "italic" : "normal");
   const fmtOf = (f) =>
     /\.woff2$/i.test(f)
       ? "woff2"
@@ -325,7 +345,8 @@ function brandFontFaces(framePath, hyperframesDir) {
   // underscore/hyphen-named brand font (e.g. TT Norms Pro), which is exactly the
   // font_family_without_font_face bug.
   const norm = (s) => s.toLowerCase().replace(/[^a-z0-9]/g, "");
-  const faces = [];
+  const captured = stageCapturedFonts(hyperframesDir, families);
+  const faces = [...captured.faces];
   const seen = new Set();
   const claimed = new Set(); // each file is claimed by the MOST SPECIFIC family only
   // Match the longest family key first so "TT Norms Pro" can't swallow the files that
@@ -344,13 +365,15 @@ function brandFontFaces(framePath, hyperframesDir) {
         if (!/\.(woff2|woff|ttf|otf)$/i.test(f)) continue;
         if (claimed.has(f)) continue; // a more specific family already took this file
         if (!norm(f.replace(/\.(woff2|woff|ttf|otf)$/i, "")).startsWith(key)) continue;
-        const w = weightOf(f);
-        const dedup = `${fam}-${w}`;
-        if (seen.has(dedup)) continue; // one src per weight; assets/fonts wins over capture
-        seen.add(dedup);
         claimed.add(f);
+        if (captured.families.has(fam.toLowerCase())) continue;
+        const w = weightOf(f);
+        const style = styleOf(f);
+        const dedup = `${fam}-${w}-${style}`;
+        if (seen.has(dedup)) continue; // one src per face; assets/fonts wins over capture
+        seen.add(dedup);
         faces.push(
-          `      @font-face { font-family: '${fam}'; src: url('${d.rel}/${f}') format('${fmtOf(f)}'); font-weight: ${w}; font-display: block; }`,
+          `      @font-face { font-family: '${fam}'; src: url('${d.rel}/${f}') format('${fmtOf(f)}'); font-weight: ${w}; font-style: ${style}; font-display: block; }`,
         );
       }
     }
@@ -372,6 +395,8 @@ function brandFontFaces(framePath, hyperframesDir) {
   }
   return faces.join("\n");
 }
+
+export { brandFontFaces }; // exported as a seam for unit testing
 
 // frame.md colors:/typography: → a :root token block, mapped to the fixed semantic
 // vocab every preset skin references. Robust to per-preset key names: colors are
@@ -458,7 +483,7 @@ function buildCaptionsHtml(groups, total, W, H) {
   <script src="https://cdn.jsdelivr.net/npm/gsap@3.14.2/dist/gsap.min.js" integrity="sha384-sG0Hv1tP1lZCk9KQmrIbY/XNwi+OY84GQqhMscbnsoBFqAz8KNCil1kvfL3Hbbk2" crossorigin="anonymous"></script>
   <script>
     (function () {
-      var GROUPS = ${JSON.stringify(groups)};
+      var GROUPS = ${JSON.stringify(groups).replace(/</g, "\\u003c")};
       var cap = document.getElementById("cap");
       var tl = gsap.timeline({ paused: true });
       GROUPS.forEach(function (g) {
@@ -487,7 +512,7 @@ function buildCaptionsHtml(groups, total, W, H) {
 `;
 }
 
-if (process.argv[1] && resolve(process.argv[1]) === fileURLToPath(import.meta.url)) {
+if (isMainModule(import.meta.url)) {
   const sub = process.argv[2];
   if (sub === "build" || sub === undefined) runBuild(process.argv.slice(sub === "build" ? 3 : 2));
   else {
