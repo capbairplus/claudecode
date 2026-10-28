@@ -58,3 +58,4 @@
 - [AiwenPaint = Pinta 衍生專案](aiwenpaint-pinta-based.md) — d:\myproject\AiwenPaint;已做功能清單、package.ps1 打包成自包含 exe、DOTNET_ROOT/PATH/Bash find 的坑;舊 WPF 版在 AiwenPaintLite
 - [教材逐課審閱:只給建議不改檔](feedback-lesson-review-suggest-first.md) — FirstStepsInJapan 台灣版,輸入 "lesson N" 即審第 N 課,先建議、等同意才改
 - [AiwenPDF 授權暫緩但要提醒](aiwenpdf-license-deferred.md) — 使用者說先別管授權;對外開放/外賣/散布前必須主動提醒並走授權筆記清單
+- [清明上河圖 2.5D 鍵鼠檢視原型](qingming-parallax-prototype.md) — 虹橋段 Depth Anything V2+three.js 位移實測:35° 內自然、50° 拉伸;Large 模型僅限非商用;專案 G:\claudecode\qingming-parallax_2026-10-27
