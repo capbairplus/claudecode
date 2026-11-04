@@ -59,3 +59,5 @@
 - [教材逐課審閱:只給建議不改檔](feedback-lesson-review-suggest-first.md) — FirstStepsInJapan 台灣版,輸入 "lesson N" 即審第 N 課,先建議、等同意才改
 - [AiwenPDF 授權暫緩但要提醒](aiwenpdf-license-deferred.md) — 使用者說先別管授權;對外開放/外賣/散布前必須主動提醒並走授權筆記清單
 - [清明上河圖 2.5D 鍵鼠檢視原型](qingming-parallax-prototype.md) — 虹橋段 Depth Anything V2+three.js 位移實測:35° 內自然、50° 拉伸;Large 模型僅限非商用;專案 G:\claudecode\qingming-parallax_2026-10-27
+- [去浮水印規範的位置與改版規則](watermark-spec-location.md) — 只有一份現行版:D:\MyProject\MyTraining\watermark\rule\去浮水印體系_v2_規範與演算法.md;改版舊檔改名留同目錄;教訓寫進規範不寫 CLAUDE.md
+- [浮水印「檢查」預設用 v1](feedback-watermark-check-default-v1.md) — 檢查浮水印預設照 docs\浮水印殘存嚴格檢查_HANDOFF.md(v1,含後續修正);使用者明講「用 v2」才用 rule\ 的 v2 檢查規範(含檔名帶 v1 的雙演算法規範)
