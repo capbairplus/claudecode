@@ -61,3 +61,4 @@
 - [清明上河圖 2.5D 鍵鼠檢視原型](qingming-parallax-prototype.md) — 虹橋段 Depth Anything V2+three.js 位移實測:35° 內自然、50° 拉伸;Large 模型僅限非商用;專案 G:\claudecode\qingming-parallax_2026-10-27
 - [去浮水印規範的位置與改版規則](watermark-spec-location.md) — 只有一份現行版:D:\MyProject\MyTraining\watermark\rule\去浮水印體系_v2_規範與演算法.md;改版舊檔改名留同目錄;教訓寫進規範不寫 CLAUDE.md
 - [浮水印「檢查」預設用 v1](feedback-watermark-check-default-v1.md) — 檢查浮水印預設照 docs\浮水印殘存嚴格檢查_HANDOFF.md(v1,含後續修正);使用者明講「用 v2」才用 rule\ 的 v2 檢查規範(含檔名帶 v1 的雙演算法規範)
+- [臺北市街道地圖 TaipeiCity](taipei-city-map-project.md) — 程式在 D:\MyProject\MyPlan\TaipeiCity,輸出一律放 D:\MyProject\Map\TaipeiCity;現況 v45;標註規則=書籤同款圖示+名稱緊貼右側、零重疊
