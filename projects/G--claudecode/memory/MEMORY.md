@@ -61,4 +61,9 @@
 - [清明上河圖 2.5D 鍵鼠檢視原型](qingming-parallax-prototype.md) — 虹橋段 Depth Anything V2+three.js 位移實測:35° 內自然、50° 拉伸;Large 模型僅限非商用;專案 G:\claudecode\qingming-parallax_2026-10-27
 - [去浮水印規範的位置與改版規則](watermark-spec-location.md) — 只有一份現行版:D:\MyProject\MyTraining\watermark\rule\去浮水印體系_v2_規範與演算法.md;改版舊檔改名留同目錄;教訓寫進規範不寫 CLAUDE.md
 - [浮水印「檢查」預設用 v1](feedback-watermark-check-default-v1.md) — 檢查浮水印預設照 docs\浮水印殘存嚴格檢查_HANDOFF.md(v1,含後續修正);使用者明講「用 v2」才用 rule\ 的 v2 檢查規範(含檔名帶 v1 的雙演算法規範)
+- [做新版前先拿前一版最佳成品當基準](feedback-benchmark-against-previous-best.md) — 阿鍚玉 MMA v2 被評比 Codex 版差好幾檔:首尾幀混源、Wan Q4+Lightning 16fps、QA 只看小縮圖沒做臉部比對、開工前沒看前版
+- [.161 上的 Codex 可 SSH 叫它畫圖](codex-on-161-via-ssh.md) — 0.165、chavi 的 ChatGPT 帳號、生圖開著;sandbox 寫不進工作夾,圖在 C:\Users\chavi\.codex\generated_images 要 scp 回來
+- [生成圖要原尺寸逐肢檢查](feedback-fullres-anatomy-check.md) — 被罵「你生的圖都是殘障」:縮圖放行漏掉肢體融合、手從肚子長出、腿兩倍長;Codex 自檢不算數
+- [grok / agy CLI 生圖](grok-agy-cli-image-gen.md) — 本機兩者都能照參考圖生圖、一致性同 Codex;圖各存在自己的 session/brain 夾要複製出來;grok 的 cwd 要用短英文路徑(中文會超 260 字元);全自動核准旗標會被擋
 - [臺北市街道地圖 TaipeiCity](taipei-city-map-project.md) — 程式在 D:\MyProject\MyPlan\TaipeiCity,輸出一律放 D:\MyProject\Map\TaipeiCity;現況 v45;標註規則=書籤同款圖示+名稱緊貼右側、零重疊
+- [交辦 skill](delegate-skills.md) — 額度快用完時交給 codex/grok/agy/SSH 代理的三個 skill 與實測限制
