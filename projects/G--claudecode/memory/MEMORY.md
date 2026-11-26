@@ -68,3 +68,4 @@
 - [臺北市街道地圖 TaipeiCity](taipei-city-map-project.md) — 程式在 D:\MyProject\MyPlan\TaipeiCity,輸出一律放 D:\MyProject\Map\TaipeiCity;現況 v45;標註規則=書籤同款圖示+名稱緊貼右側、零重疊
 - [交辦 skill](delegate-skills.md) — 額度快用完時交給 codex/grok/agy/SSH 代理的三個 skill 與實測限制
 - [svc 不用 G:](feedback_svc_no_g_drive.md) — svc 檔案一律放 D:\myproject\svc,管理員視窗看不到 G:
+- [臺北市 L2 行政區圖](taipei-l2-district-maps.md) — 161 上內湖/松山/信義/中正;2026-11-25 上圖政策(不放公司行號、餐飲只留連鎖或官方登記)、檢查腳本與雷
