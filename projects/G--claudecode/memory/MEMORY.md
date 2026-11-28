@@ -69,3 +69,4 @@
 - [交辦 skill](delegate-skills.md) — 額度快用完時交給 codex/grok/agy/SSH 代理的三個 skill 與實測限制
 - [svc 不用 G:](feedback_svc_no_g_drive.md) — svc 檔案一律放 D:\myproject\svc,管理員視窗看不到 G:
 - [臺北市 L2 行政區圖](taipei-l2-district-maps.md) — 161 上內湖/松山/信義/中正;2026-11-25 上圖政策(不放公司行號、餐飲只留連鎖或官方登記)、檢查腳本與雷
+- [capbairnas Disk 1 故障](capbairnas-disk1-failing.md) — DS216play 無備援,sda=/volume1 反覆 reset fail,待備份換碟
